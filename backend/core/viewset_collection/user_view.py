@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-class UserViewSet(viewsets.ViewSet):
+class UsersViewSet(viewsets.ViewSet):
     def list(self, request):
         return Response({"message": "Hello, World!"})
