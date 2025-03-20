@@ -83,7 +83,7 @@ from django.contrib.auth.models import (
 #         unique_together = ("id_user", "id_role")
 
 
-auth_token = ["mocktoken25"]
+auth_token = ["adminMockToken25", "userMockToken25"]
 
 users = [
     {
