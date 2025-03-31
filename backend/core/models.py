@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 
 class User(AbstractUser):
@@ -11,20 +12,14 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="profiles")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='profiles')
     name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["user", "name"], name="unique_profile_per_user"
-            ),
-            models.CheckConstraint(
-                check=models.Q(user__profiles__count__lte=4),
-                name="max_four_profiles_per_user",
-            ),
-        ]
+    def save(self, *args, **kwargs):
+        if self.user.profiles.count() >= 4:
+            raise ValidationError("A user can have a maximum of 4 profiles.")
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name} ({self.user.username})"
