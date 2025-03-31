@@ -47,3 +47,57 @@ class Account(models.Model):
     
     def __str__(self):
         return f"{self.name} ({self.profile.name})"
+
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    is_income = models.BooleanField()  # True = income, False = expense
+    
+    def __str__(self):
+        return self.name
+
+class Transaction(models.Model):
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='transactions')
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='transactions')
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    transaction_date = models.DateTimeField()
+    description = models.TextField(blank=True, null=True)
+    is_recurring = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.category.name}: {self.amount} ({self.account.name})"
+
+class Budget(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='budgets')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='budgets')
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    
+    def __str__(self):
+        return f"Budget for {self.category.name} ({self.profile.name})"
+
+class RecurringTransaction(models.Model):
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='recurring_transactions')
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='recurring_transactions')
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    frequency = models.CharField(
+        max_length=20,
+        choices=[('daily', 'Daily'), ('weekly', 'Weekly'), ('monthly', 'Monthly'), ('yearly', 'Yearly')]
+    )
+    next_due_date = models.DateField()
+    description = models.TextField(blank=True, null=True)
+    
+    def __str__(self):
+        return f"{self.frequency} {self.category.name} - {self.amount} ({self.account.name})"
+
+class Goal(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='goals')
+    name = models.CharField(max_length=100)
+    target_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    current_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    due_date = models.DateField()
+    
+    def __str__(self):
+        return f"{self.name} ({self.profile.name})"
