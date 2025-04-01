@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'core',
-    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -79,8 +78,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -88,9 +85,10 @@ DATABASES = {
         'USER': os.environ.get("DB_USER"),
         'PASSWORD': os.environ.get("DB_PASS"),
         'HOST': os.environ.get("DB_HOST"),
-        'PORT': '2115',
+        'PORT': '5432',
     }
 }
+
 
 
 # Password validation
@@ -137,3 +135,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = ['http://localhost:5173']
 
 AUTH_USER_MODEL = 'core.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=240),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
