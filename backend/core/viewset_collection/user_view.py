@@ -1,40 +1,71 @@
+from django.contrib.auth import authenticate
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import action
+from django.db.models import Sum
+from ..serializers import RegisterSerializer, LoginSerializer, ExpenseSerializer
+from ..models import Transaction, Profile
+from django.contrib.auth import get_user_model, authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from ..models import *
+User = get_user_model()
 
 
-class UsersViewSet(viewsets.ViewSet):
-    def create(self, request):
-        """Add a new user, ensuring unique email and username"""
-        user = request.data
-        if any(
-            u["email"] == user["email"] or u["username"] == user["username"]
-            for u in users
-        ):
+class RegisterViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+
+    @action(detail=False, methods=["post"])
+    def register(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+
+            refresh = RefreshToken.for_user(user)
+            access_token = refresh.access_token
+
             return Response(
-                {"error": "Email or username already exists"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {
+                    "user": {
+                        "id": user.id,
+                        "username": user.username,
+                        "email": user.email,
+                    },
+                    "refresh": str(refresh),
+                    "access": str(access_token),
+                },
+                status=status.HTTP_201_CREATED,
             )
-        user["id"] = len(users) + 1
-        users.append(user)
-        return Response(user, status=status.HTTP_201_CREATED)
 
-    def list(self, request):
-        """Get user data if admin token is provided"""
-        auth_header = request.headers.get("Authorization")
-        if auth_header == f"Bearer {auth_token[0]}":
-            return Response(users)
-        return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def retrieve(self, request, pk=None):
-        """Get a user by ID if admin token is provided"""
-        auth_header = request.headers.get("Authorization")
-        if auth_header == f"Bearer {auth_token[0]}":
-            user = next((u for u in users if u["id"] == int(pk)), None)
+
+class LoginViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+
+    @action(detail=False, methods=["post"])
+    def login(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            username = serializer.validated_data["username"]
+            password = serializer.validated_data["password"]
+            user = authenticate(username=username, password=password)
             if user:
-                return Response(user)
+                refresh = RefreshToken.for_user(user)
+                return Response(
+                    {
+                        "user": {
+                            "id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                        },
+                        "refresh": str(refresh),
+                        "access": str(refresh.access_token),
+                    },
+                    status=status.HTTP_200_OK,
+                )
             return Response(
-                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+                {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
             )
-        return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

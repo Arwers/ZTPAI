@@ -1,122 +1,151 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.contrib.auth.models import (
-    AbstractBaseUser,
-    BaseUserManager,
-    PermissionsMixin,
-)
-
-from django.db import models
-from django.contrib.auth.models import (
-    AbstractBaseUser,
-    BaseUserManager,
-    PermissionsMixin,
-    Group,
-    Permission,
-)
+from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 
-# class UserManager(BaseUserManager):
-#     def create_user(self, email, password=None, **extra_fields):
-#         if not email:
-#             raise ValueError("The Email field must be set")
-#         email = self.normalize_email(email)
-#         user = self.model(email=email, **extra_fields)
-#         user.set_password(password)
-#         user.save(using=self._db)
-#         return user
+class User(AbstractUser):
+    is_email_verified = models.BooleanField(default=False)
 
-#     def create_superuser(self, email, password=None, **extra_fields):
-#         extra_fields.setdefault("is_staff", True)
-#         extra_fields.setdefault("is_superuser", True)
-#         return self.create_user(email, password, **extra_fields)
+    def __str__(self):
+        return self.username
 
 
-# class Role(models.Model):
-#     id_role = models.AutoField(primary_key=True)
-#     role_name = models.CharField(max_length=50)
+class Profile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='profiles')
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-#     def __str__(self):
-#         return self.role_name
+    def save(self, *args, **kwargs):
+        if self.user.profiles.count() >= 4:
+            raise ValidationError("A user can have a maximum of 4 profiles.")
+        super().save(*args, **kwargs)
 
-
-# class UserDetails(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     name = models.CharField(max_length=100)
-#     surname = models.CharField(max_length=100)
-
-#     def __str__(self):
-#         return f"{self.name} {self.surname}"
+    def __str__(self):
+        return f"{self.name} ({self.user.username})"
 
 
-# class User(AbstractBaseUser, PermissionsMixin):
-#     id = models.AutoField(primary_key=True)
-#     id_user_details = models.OneToOneField(
-#         UserDetails, on_delete=models.CASCADE, related_name="user"
-#     )
-#     email = models.EmailField(max_length=255, unique=True)
-#     password = models.CharField(max_length=255)
-#     is_active = models.BooleanField(default=True)
-#     is_staff = models.BooleanField(default=False)
-#     roles = models.ManyToManyField(Role, through="UserRole")
+class Currency(models.Model):
+    code = models.CharField(max_length=3, unique=True)
+    name = models.CharField(max_length=50)
+    symbol = models.CharField(max_length=10)
 
-#     groups = models.ManyToManyField(
-#         Group, related_name="custom_user_groups", blank=True
-#     )
-#     user_permissions = models.ManyToManyField(
-#         Permission, related_name="custom_user_permissions", blank=True
-#     )
-
-#     objects = UserManager()
-
-#     USERNAME_FIELD = "email"
-#     REQUIRED_FIELDS = []
-
-#     def __str__(self):
-#         return self.email
+    def __str__(self):
+        return self.code
 
 
-# class UserRole(models.Model):
-#     id_user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     id_role = models.ForeignKey(Role, on_delete=models.CASCADE)
+class AccountType(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True, null=True)
 
-#     class Meta:
-#         unique_together = ("id_user", "id_role")
+    def __str__(self):
+        return self.name
 
 
-auth_token = ["adminMockToken25", "userMockToken25"]
+class Account(models.Model):
+    profile = models.ForeignKey(
+        Profile, on_delete=models.CASCADE, related_name="accounts"
+    )
+    account_type = models.ForeignKey(
+        AccountType, on_delete=models.SET_NULL, null=True, related_name="accounts"
+    )
+    name = models.CharField(max_length=100)
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    currency = models.ForeignKey(
+        Currency, on_delete=models.SET_NULL, null=True, related_name="accounts"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
-users = [
-    {
-        "id": 1,
-        "username": "admin",
-        "email": "admin@example.com",
-        "password": "pkstdpass",
-        "role": 1,
-    },
-    {
-        "id": 2,
-        "username": "user",
-        "email": "user@example.com",
-        "password": "pkstdpass",
-        "role": 0,
-    },
-]
+    def __str__(self):
+        return f"{self.name} ({self.profile.name})"
 
-expenses = [
-    {
-        "id": 1,
-        "id_user": 2,
-        "name": "Groceries",
-        "desc": "small shopping in żabka",
-        "price": 45.50,
-    },
-    {
-        "id": 2,
-        "id_user": 2,
-        "name": "Dog food",
-        "desc": "Big food pack for Nikoś",
-        "price": 80.99,
-    },
-]
 
-roles = [{"admin": 1, "user": 0}]
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    is_income = models.BooleanField()  # True = income, False = expense
+
+    def __str__(self):
+        return self.name
+
+
+class Transaction(models.Model):
+    account = models.ForeignKey(
+        Account, on_delete=models.CASCADE, related_name="transactions"
+    )
+    category = models.ForeignKey(
+        Category, on_delete=models.SET_NULL, null=True, related_name="transactions"
+    )
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    transaction_date = models.DateTimeField()
+    description = models.TextField(blank=True, null=True)
+    is_recurring = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.category.name}: {self.amount} ({self.account.name})"
+
+
+class Budget(models.Model):
+    profile = models.ForeignKey(
+        Profile, on_delete=models.CASCADE, related_name="budgets"
+    )
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="budgets"
+    )
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    def __str__(self):
+        return f"Budget for {self.category.name} ({self.profile.name})"
+
+
+class RecurringTransaction(models.Model):
+    account = models.ForeignKey(
+        Account, on_delete=models.CASCADE, related_name="recurring_transactions"
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="recurring_transactions",
+    )
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    frequency = models.CharField(
+        max_length=20,
+        choices=[
+            ("daily", "Daily"),
+            ("weekly", "Weekly"),
+            ("monthly", "Monthly"),
+            ("yearly", "Yearly"),
+        ],
+    )
+    next_due_date = models.DateField()
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.frequency} {self.category.name} - {self.amount} ({self.account.name})"
+
+
+class Goal(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="goals")
+    name = models.CharField(max_length=100)
+    target_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    current_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    due_date = models.DateField()
+
+    def __str__(self):
+        return f"{self.name} ({self.profile.name})"
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="notifications"
+    )
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification for {self.user.username} ({'Read' if self.is_read else 'Unread'})"
