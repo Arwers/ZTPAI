@@ -9,6 +9,7 @@ from ..models import Transaction, Category, Account, Profile
 from datetime import datetime, timedelta
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -75,4 +76,42 @@ class ExpensesViewSet(viewsets.ViewSet):
             return Response({"error": "Expense not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+        
+    @action(detail=False, methods=["post"], url_path="add_expense")
+    def add_expense(self, request):
+        # Extract data from the request
+        account_name = request.data.get("account_name")
+        category_name = request.data.get("category")  # Ensure this is 'category', not 'category_name'
+        amount = request.data.get("amount")
+        transaction_date = request.data.get("transaction_date")
+        description = request.data.get("description")
+        
+        # Ensure necessary fields are provided
+        if not account_name or not category_name or not amount or not transaction_date:
+            return Response({"error": "Account name, category, amount, and transaction date are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Fetch the account for the user
+            account = Account.objects.get(name=account_name, profile__user=request.user)
+
+            # Check if the category exists
+            category, _ = Category.objects.get_or_create(name=category_name, is_income=False)
+
+            # Ensure the transaction_date is properly formatted and converted to datetime
+            transaction_date = timezone.make_aware(datetime.strptime(transaction_date, "%Y-%m-%dT%H:%M:%S"))
+
+            # Create the transaction
+            transaction = Transaction.objects.create(
+                account=account,
+                category=category,
+                amount=amount,
+                transaction_date=transaction_date,
+                description=description
+            )
+
+            return Response({"message": "Expense added successfully", "transaction_id": transaction.id}, status=status.HTTP_201_CREATED)
+
+        except Account.DoesNotExist:
+            return Response({"error": "Account not found."}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
