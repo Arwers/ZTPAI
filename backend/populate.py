@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
-from django.utils.timezone import now
 from core.models import Profile, Account, AccountType, Currency, Category, Transaction
+from django.utils import timezone
+from datetime import timedelta
 
 User = get_user_model()
 
@@ -60,19 +61,24 @@ def populate():
     
     # Create transactions (expenses)
     expenses = [
-        {"category": food_category, "amount": 20.00, "description": "Lunch at restaurant"},
-        {"category": transport_category, "amount": 10.50, "description": "Bus fare"},
-        {"category": entertainment_category, "amount": 15.00, "description": "Movie ticket"},
+        {"category": food_category, "amount": 25.00, "description": "Uber eats"},
+        {"category": transport_category, "amount": 12.50, "description": "Parking ticket"},
+        {"category": entertainment_category, "amount": 11.00, "description": "Theatre"},
         {"category": food_category, "amount": 5.00, "description": "Coffee"},
         {"category": transport_category, "amount": 7.25, "description": "Taxi ride"},
     ]
-    
-    for exp in expenses:
+    # Get the current time
+    base_time = timezone.now()
+
+    # Create the transactions with different transaction dates
+    for index, exp in enumerate(expenses):
+        transaction_date = base_time + timedelta(days=index)  # Adjust date for each expense (e.g., add 1 day for the second, 2 days for the third)
+        
         Transaction.objects.create(
             account=account,
             category=exp["category"],
             amount=exp["amount"],
-            transaction_date=now(),
+            transaction_date=transaction_date,
             description=exp["description"]
         )
     
