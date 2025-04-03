@@ -10,14 +10,12 @@ const ExpensesPage = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [newExpense, setNewExpense] = useState({
-    account: "",
     amount: 0,
     description: "",
     category: "",
     transaction_date: "",
   });
 
-  // Fetch the expenses when the component mounts
   useEffect(() => {
     fetchExpenses();
   }, []);
@@ -29,12 +27,9 @@ const ExpensesPage = () => {
       setLoading(false);
       return;
     }
-
     try {
       const response = await axios.get("http://localhost:8000/api/expenses/list_expenses/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setExpenses(response.data);
     } catch (err) {
@@ -51,20 +46,13 @@ const ExpensesPage = () => {
       const response = await axios.get(
         `http://localhost:8000/api/expenses/total_expenses/?start_date=${startDate}&end_date=${endDate}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setTotalExpenses(response.data.total_expenses);
     } catch (err) {
       console.error("Failed to fetch total expenses");
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    window.location.href = "/";
   };
 
   const handleAddExpense = async () => {
@@ -74,24 +62,18 @@ const ExpensesPage = () => {
       return;
     }
 
+    const formattedExpense = {
+      ...newExpense,
+      account_name: "User's Checking Account",
+      transaction_date: `${newExpense.transaction_date}T10:00:00`,
+    };
+
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/expenses/add_expense/",
-        newExpense,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      fetchExpenses(); // Refresh expenses after adding a new one
-      setNewExpense({
-        account: "",
-        amount: 0,
-        description: "",
-        category: "",
-        transaction_date: "",
-      }); // Reset form
+      await axios.post("http://localhost:8000/api/expenses/add_expense/", formattedExpense, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchExpenses();
+      setNewExpense({ amount: 0, description: "", category: "", transaction_date: "" });
     } catch (err) {
       setError("Failed to add expense. Try again later.");
     }
@@ -106,14 +88,17 @@ const ExpensesPage = () => {
 
     try {
       await axios.delete(`http://localhost:8000/api/expenses/${expenseId}/delete_expense/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-      fetchExpenses(); // Refresh expenses after deletion
+      fetchExpenses();
     } catch (err) {
       setError("Failed to delete expense. Try again later.");
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    window.location.href = "/";
   };
 
   return (
@@ -149,9 +134,7 @@ const ExpensesPage = () => {
                   expenses.map((expense) => (
                     <TableRow key={expense.id}>
                       <TableCell>
-                        {expense.transaction_date
-                          ? new Date(expense.transaction_date).toLocaleDateString()
-                          : "No Date"}
+                        {new Date(expense.transaction_date).toLocaleDateString()}
                       </TableCell>
                       <TableCell>${expense.amount}</TableCell>
                       <TableCell>{expense.description || "No description"}</TableCell>
@@ -170,6 +153,43 @@ const ExpensesPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          <Typography variant="h5" sx={{ mt: 4 }}>
+            Add Expense
+          </Typography>
+          <TextField
+            label="Date"
+            type="date"
+            InputLabelProps={{ shrink: true }}
+            value={newExpense.transaction_date}
+            onChange={(e) => setNewExpense({ ...newExpense, transaction_date: e.target.value })}
+            sx={{ mt: 2, width: "100%" }}
+          />
+          <TextField
+            label="Amount"
+            type="number"
+            fullWidth
+            value={newExpense.amount}
+            onChange={(e) => setNewExpense({ ...newExpense, amount: parseFloat(e.target.value) || 0 })}
+            sx={{ mt: 2 }}
+          />
+          <TextField
+            label="Category"
+            fullWidth
+            value={newExpense.category}
+            onChange={(e) => setNewExpense({ ...newExpense, category: e.target.value })}
+            sx={{ mt: 2 }}
+          />
+          <TextField
+            label="Description"
+            fullWidth
+            value={newExpense.description}
+            onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })}
+            sx={{ mt: 2 }}
+          />
+          <Button variant="contained" color="primary" sx={{ mt: 2 }} onClick={handleAddExpense}>
+            Add Expense
+          </Button>
 
           <Typography variant="h5" sx={{ mt: 4 }}>
             Get Sum
@@ -196,12 +216,12 @@ const ExpensesPage = () => {
           <Typography variant="h6" sx={{ mt: 2 }}>
             Total Expenses: ${totalExpenses.toFixed(2)}
           </Typography>
+
+          <Button variant="contained" color="error" sx={{ mt: 4 }} onClick={handleLogout}>
+            Logout
+          </Button>
         </>
       )}
-
-      <Button variant="contained" color="error" sx={{ mt: 4 }} onClick={handleLogout}>
-        Logout
-      </Button>
     </Container>
   );
 };
