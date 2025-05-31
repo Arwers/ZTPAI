@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.urls import include, path
-from users.views import CreateUserView
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from users.views import CreateUserView, CustomTokenObtainPairView, CustomTokenRefreshView, LogoutView, CheckAuthView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
@@ -11,9 +10,11 @@ urlpatterns = [
     # Custom users app URLs
     path("api/users/register/", CreateUserView.as_view(), name="register"),
     
-    # JWT authentication URLs
-    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    # JWT authentication URLs with cookies
+    path("api/auth/login/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/auth/refresh/", CustomTokenRefreshView.as_view(), name="token_refresh"),
+    path("api/auth/logout/", LogoutView.as_view(), name="logout"),
+    path("api/auth/check/", CheckAuthView.as_view(), name="check_auth"),
 
     # Swagger URLs
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
