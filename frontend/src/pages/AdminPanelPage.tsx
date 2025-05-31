@@ -1,15 +1,18 @@
 import { Container, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import api from "../utils/api";
 
 const AdminPanelPage = () => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    // Clear all tokens from localStorage
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("refreshToken");
-    // Redirect to login page
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await api.post("/api/auth/logout/");
+      navigate("/");
+    } catch (error) {
+      // Even if logout fails, redirect to login
+      navigate("/");
+    }
   };
 
   return (

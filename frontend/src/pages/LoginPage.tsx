@@ -1,70 +1,64 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 import { Container, TextField, Button, Typography, Paper, Alert, Box } from "@mui/material";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isChecking, setIsChecking] = useState(true);
   const navigate = useNavigate();
   
   useEffect(() => {
     // Check if user is already logged in
-    const token = localStorage.getItem("authToken");
-    if (token) {
+    const checkAuth = async () => {
       try {
-        // Decode the token
-        const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-        
-        // Check if token is expired
-        const currentTime = Math.floor(Date.now() / 1000);
-        if (tokenPayload.exp && tokenPayload.exp > currentTime) {
-          // Token is valid, redirect based on role
-          if (tokenPayload.user_id == 2) {
-            navigate("/adminPanel");
-          } else {
-            navigate("/dashboard");
-          }
+        const meResponse = await api.get('/api/auth/me/');
+        // Redirect based on staff status
+        if (meResponse.data.is_staff) {
+          window.location.href = "http://localhost:8000/admin/";
         } else {
-          // Token is expired, clear storage
-          localStorage.removeItem("authToken");
-          localStorage.removeItem("refreshToken");
+          navigate("/dashboard", { replace: true });
         }
       } catch (err) {
-        // Token is invalid, clear storage
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("refreshToken");
+        // User not authenticated, stay on login page
+        setIsChecking(false);
       }
-    }
-  }, [navigate]);
-  
+    };
+    checkAuth();
+  }, []); // Empty dependency array to run only once
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:8000/api/token/", {
+      await api.post("/api/auth/login/", {
         username,
         password,
       });
 
-      localStorage.setItem("authToken", response.data.access);
-      localStorage.setItem("refreshToken", response.data.refresh);
-      
-      // Decode the JWT token to extract user information
-      const tokenPayload = JSON.parse(atob(response.data.access.split('.')[1]));
-      
-      // Check if user is admin/staff and navigate accordingly
-      if (tokenPayload.user_id == 2) {
-        navigate("/adminPanel");
+      // Get user info after login
+      const meResponse = await api.get('/api/auth/me/');
+      if (meResponse.data.is_staff) {
+        navigate("/admin-panel", { replace: true });
       } else {
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       }
-    } catch (err) {
+    } catch (err: any) {
       setError("Invalid credentials. Try again.");
     }
   };
+
+  // Show loading while checking authentication
+  if (isChecking) {
+    return (
+      <Container maxWidth="sm" sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
+        <Typography>Checking authentication...</Typography>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="sm" sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
