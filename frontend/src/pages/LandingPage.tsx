@@ -18,32 +18,32 @@ import {
   CircularProgress
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ThemeToggle from '../components/ThemeToggle';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faChartPie } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
+import SearchIcon from '@mui/icons-material/Search';
 
 // FAQ data
 const faqs = [
   {
     question: "What is this application for?",
-    answer: "This is a project management application that helps teams organize tasks, track progress, and collaborate efficiently on projects of any size."
+    answer: "This application is designed to help you manage your personal finances. You can track expenses, set budgets, and analyze your spending habits."
   },
   {
     question: "How do I get started?",
-    answer: "You can register for a free account, then create your first project and invite team members to collaborate with you."
+    answer: "You can register for a free account, then create your profiles for different bank accounts. Once set up, you can start tracking your expenses."
   },
   {
     question: "Is my data secure?",
-    answer: "Yes, all data is encrypted and stored securely. We implement industry-standard security practices to protect your information."
-  },
-  {
-    question: "Can I use this for personal projects?",
-    answer: "Absolutely! The application is designed for both personal and team use. You can create private projects just for yourself."
+    answer: "No, this is a mock application for educational purposes."
   },
   {
     question: "Is there a mobile app?",
-    answer: "We're currently developing mobile apps for iOS and Android. In the meantime, our web application is fully responsive and works great on mobile devices."
+    answer: "There is currently no mobile app, but the web application is fully responsive (XD) and works well on mobile devices."
   }
 ];
 
@@ -77,13 +77,26 @@ const LandingPage: React.FC = () => {
         sx={{ transition: 'background-color 0.3s ease' }} // Add transition for AppBar
       >
         <Toolbar>
-          <FontAwesomeIcon 
+          <Box 
+            component={RouterLink} 
+            to="/" 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              textDecoration: 'none', 
+              color: 'inherit',
+              cursor: 'pointer'
+            }}
+          >
+            <FontAwesomeIcon 
               icon={faChartPie} 
               style={{ fontSize: '1.5rem', marginRight: '10px' }} 
             />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Finance Tracker
-          </Typography>
+            <Typography variant="h6" component="div">
+              Finance Tracker
+            </Typography>
+          </Box>
+          <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <ThemeToggle />
             <Button 
@@ -175,15 +188,23 @@ const LandingPage: React.FC = () => {
                 p: 3,
                 width: '80%',
                 maxWidth: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
                 transition: 'background-color 0.3s ease, color 0.3s ease' // Add transition for Paper elements
               }}
             >
-              <Typography variant="h5" gutterBottom>
-                Managing expenses
-              </Typography>
-              <Typography>
-                Easily track your daily expenses, categorize them, and set budgets to stay on top of your finances.
-              </Typography>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h5" gutterBottom>
+                  Managing expenses
+                </Typography>
+                <Typography>
+                  Easily track your daily expenses, categorize them, and set budgets to stay on top of your finances.
+                </Typography>
+              </Box>
+              <Box sx={{ ml: 3 }}>
+                <SearchIcon sx={{ fontSize: 60 }} />
+              </Box>
             </Paper>
             
             <Paper 
@@ -192,15 +213,23 @@ const LandingPage: React.FC = () => {
                 p: 3,
                 width: '80%',
                 maxWidth: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
                 transition: 'background-color 0.3s ease, color 0.3s ease' // Add transition for Paper elements
               }}
             >
-              <Typography variant="h5" gutterBottom>
-                Multi-account support
-              </Typography>
-              <Typography>
-                Manage multiple bank accounts, credit cards, and cash transactions all in one place.
-              </Typography>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h5" gutterBottom>
+                  Multi-profile support
+                </Typography>
+                <Typography>
+                  Manage multiple bank accounts, credit cards, and cash transactions all in one place.
+                </Typography>
+              </Box>
+              <Box sx={{ ml: 3 }}>
+                <DashboardIcon sx={{ fontSize: 60 }} />
+              </Box>
             </Paper>
             
             <Paper 
@@ -209,16 +238,24 @@ const LandingPage: React.FC = () => {
                 p: 3,
                 width: '80%',
                 maxWidth: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
                 transition: 'background-color 0.3s ease, color 0.3s ease' // Add transition for Paper elements
               }}
             >
-              <Typography variant="h5" gutterBottom>
-                Reports & Analytics
-              </Typography>
-              <Typography>
-                Get insights into your spending habits with detailed reports and visualizations. 
-                Understand where your money goes and how to save more effectively.
-              </Typography>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h5" gutterBottom>
+                  Reports & Analytics
+                </Typography>
+                <Typography>
+                  Get insights into your spending habits with detailed reports and visualizations. 
+                  Understand where your money goes and how to save more effectively.
+                </Typography>
+              </Box>
+              <Box sx={{ ml: 3 }}>
+                <TrendingUpIcon sx={{ fontSize: 60 }} />
+              </Box>
             </Paper>
           </Box>
         </Container>
@@ -236,7 +273,7 @@ const LandingPage: React.FC = () => {
           </Typography>
           <Box sx={{ my: 4 }}>
             <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12}>
                 <Typography variant="h5" gutterBottom>
                   1. Create an Account
                 </Typography>
@@ -244,48 +281,14 @@ const LandingPage: React.FC = () => {
                   Register for free and set up your profile. It only takes a minute to get started.
                 </Typography>
               </Grid>
-              <Grid item xs={12} md={6}>
-                <Paper 
-                  elevation={3} 
-                  sx={{ 
-                    height: 200, 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    bgcolor: 'primary.light',
-                    transition: 'background-color 0.3s ease' // Add transition for Paper elements
-                  }}
-                >
-                  <Typography variant="h6" color="primary.contrastText">
-                    Registration Screen
-                  </Typography>
-                </Paper>
-              </Grid>
             </Grid>
             
             <Divider sx={{ my: 4 }} />
             
-            <Grid container spacing={2} alignItems="center" direction={{ xs: 'column-reverse', md: 'row' }}>
-              <Grid item xs={12} md={6}>
-                <Paper 
-                  elevation={3} 
-                  sx={{ 
-                    height: 200, 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    bgcolor: 'secondary.light',
-                    transition: 'background-color 0.3s ease' // Add transition for Paper elements
-                  }}
-                >
-                  <Typography variant="h6" color="secondary.contrastText">
-                    Dashboard
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={6}>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={12}>
                 <Typography variant="h5" gutterBottom>
-                  2. Set up Your accounts
+                  2. Set up your profiles
                 </Typography>
                 <Typography paragraph>
                   Set up your bank accounts, credit cards, and cash transactions to start tracking your finances.
@@ -296,30 +299,13 @@ const LandingPage: React.FC = () => {
             <Divider sx={{ my: 4 }} />
             
             <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12}>
                 <Typography variant="h5" gutterBottom>
                   3. Track Your spendings
                 </Typography>
                 <Typography paragraph>
                   Monitor your daily expenses, categorize them, and set budgets to stay on track with your financial goals.
                 </Typography>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Paper 
-                  elevation={3} 
-                  sx={{ 
-                    height: 200, 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    bgcolor: 'success.light',
-                    transition: 'background-color 0.3s ease' // Add transition for Paper elements
-                  }}
-                >
-                  <Typography variant="h6" color="success.contrastText">
-                    Progress Tracking
-                  </Typography>
-                </Paper>
               </Grid>
             </Grid>
           </Box>
@@ -372,8 +358,8 @@ const LandingPage: React.FC = () => {
         component="footer"
       >
         <Container maxWidth="lg">
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={4}>
+          <Grid container spacing={4} justifyContent="center">
+            <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
               <Typography variant="h6" gutterBottom>
                 About Us
               </Typography>
@@ -381,7 +367,7 @@ const LandingPage: React.FC = () => {
                 ZTPAI project for Cracow UoT
               </Typography>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
               <Typography variant="h6" gutterBottom>
                 Contact Us
               </Typography>
@@ -395,19 +381,21 @@ const LandingPage: React.FC = () => {
                 Address: Cracow, Poland
               </Typography>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
               <Typography variant="h6" gutterBottom>
                 Links
               </Typography>
-              <Link href="#" color="inherit" display="block" sx={{ mb: 1 }}>
-                Terms of Service
-              </Link>
-              <Link href="#" color="inherit" display="block" sx={{ mb: 1 }}>
-                Privacy Policy
-              </Link>
-              <Link href="#" color="inherit" display="block">
-                Help Center
-              </Link>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Link href="#" color="inherit" display="block" sx={{ mb: 1 }}>
+                  Terms of Service
+                </Link>
+                <Link href="#" color="inherit" display="block" sx={{ mb: 1 }}>
+                  Privacy Policy
+                </Link>
+                <Link href="#" color="inherit" display="block">
+                  Help Center
+                </Link>
+              </Box>
             </Grid>
           </Grid>
           <Box mt={4} pt={2} borderTop={1} borderColor="divider">

@@ -16,6 +16,7 @@ import { useAuth } from "../contexts/AuthContext";
 import ThemeToggle from "../components/ThemeToggle";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartPie } from '@fortawesome/free-solid-svg-icons';
+import { Link as RouterLink } from 'react-router-dom';
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -71,7 +72,17 @@ const LoginPage = () => {
         }}
       >
         <Toolbar>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box 
+            component={RouterLink} 
+            to="/" 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              textDecoration: 'none', 
+              color: 'inherit',
+              cursor: 'pointer'
+            }}
+          >
             <FontAwesomeIcon 
               icon={faChartPie} 
               style={{ fontSize: '1.5rem', marginRight: '10px' }} 
