@@ -11,16 +11,23 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
+    // Only handle 401 errors and prevent infinite retry loops
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+      
+      // Check if we're already on login/register/landing pages - don't redirect
+      const currentPath = window.location.pathname;
+      if (currentPath === '/login' || currentPath === '/register' || currentPath === '/') {
+        return Promise.reject(error);
+      }
       
       try {
         await api.post('/api/auth/refresh/');
         return api(originalRequest);
       } catch (refreshError) {
-        // Refresh failed, only redirect if not already on login page
-        if (window.location.pathname !== '/') {
-          window.location.href = '/';
+        // Refresh failed, redirect to login (not landing page)
+        if (currentPath !== '/login') {
+          window.location.href = '/login';
         }
         return Promise.reject(refreshError);
       }
