@@ -1,58 +1,37 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../utils/api";
 import { Container, TextField, Button, Typography, Paper, Alert, Box } from "@mui/material";
+import { useAuth } from "../contexts/AuthContext";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isChecking, setIsChecking] = useState(true);
   const navigate = useNavigate();
-  
+  const { user, isLoading, login, error } = useAuth();
+
+  // Redirect if already logged in
   useEffect(() => {
-    // Check if user is already logged in
-    const checkAuth = async () => {
-      try {
-        const meResponse = await api.get('/api/auth/me/');
-        // Redirect based on staff status
-        if (meResponse.data.is_staff) {
-          window.location.href = "http://localhost:8000/admin/";
-        } else {
-          navigate("/dashboard", { replace: true });
-        }
-      } catch (err) {
-        // User not authenticated, stay on login page
-        setIsChecking(false);
-      }
-    };
-    checkAuth();
-  }, []); // Empty dependency array to run only once
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    try {
-      await api.post("/api/auth/login/", {
-        username,
-        password,
-      });
-
-      // Get user info after login
-      const meResponse = await api.get('/api/auth/me/');
-      if (meResponse.data.is_staff) {
+    if (user) {
+      if (user.is_staff) {
         navigate("/admin-panel", { replace: true });
       } else {
         navigate("/dashboard", { replace: true });
       }
-    } catch (err: any) {
-      setError("Invalid credentials. Try again.");
+    }
+  }, [user, navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await login(username, password);
+      // No need to navigate here - the useEffect above will handle redirection
+    } catch (err) {
+      // Error is already handled in the context
     }
   };
 
   // Show loading while checking authentication
-  if (isChecking) {
+  if (isLoading) {
     return (
       <Container maxWidth="sm" sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
         <Typography>Checking authentication...</Typography>
