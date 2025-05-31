@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { Box, CircularProgress, Container } from "@mui/material";
 
 interface ProtectedRouteProps {
   element: JSX.Element;
@@ -9,14 +10,18 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ element, requiredRole }: ProtectedRouteProps) => {
   const { user, isLoading } = useAuth();
   
-  // Loading state
+  // Simple loading indicator instead of skeleton
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Container>
+    );
   }
 
   // User is not authenticated
   if (!user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;  // Change to /login instead of / (landing page)
   }
 
   // Check role requirements
