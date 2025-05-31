@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import include, path
-from users.views import CreateUserView, CustomTokenObtainPairView, CustomTokenRefreshView, LogoutView, CheckAuthView
+from users.views import CreateUserView, CustomTokenObtainPairView, CustomTokenRefreshView, LogoutView, MeView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
@@ -14,7 +14,7 @@ urlpatterns = [
     path("api/auth/login/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/auth/refresh/", CustomTokenRefreshView.as_view(), name="token_refresh"),
     path("api/auth/logout/", LogoutView.as_view(), name="logout"),
-    path("api/auth/check/", CheckAuthView.as_view(), name="check_auth"),
+    path("api/auth/me/", MeView.as_view(), name="me"),
 
     # Swagger URLs
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

@@ -10,6 +10,7 @@ from django.conf import settings
 from datetime import datetime, timedelta
 from rest_framework_simplejwt.tokens import AccessToken
 import jwt
+from rest_framework.views import APIView
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -76,7 +77,7 @@ class CustomTokenRefreshView(TokenRefreshView):
                 access_token,
                 max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds(),
                 httponly=True,
-                secure=False,  # Set to True in production with HTTPS
+                secure=False,
                 samesite='Lax'
             )
             
@@ -92,13 +93,25 @@ class LogoutView(generics.GenericAPIView):
         response.delete_cookie('refresh_token')
         return response
 
-class CheckAuthView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
-    
+class MeView(APIView):
+    permission_classes = [AllowAny]  # You may want to use IsAuthenticated if you require authentication
+
     def get(self, request):
-        return Response({
-            'authenticated': True,
-            'user_id': request.user.id,
-            'username': request.user.username,
-            'is_staff': request.user.is_staff
-        })
+        access_token = request.COOKIES.get('access_token')
+        if not access_token:
+            return Response({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            decoded_token = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
+            user_id = decoded_token.get('user_id')
+            user = User.objects.filter(id=user_id).first()
+            if not user:
+                return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({
+                'username': user.username,
+                'user_id': user.id,
+                'is_staff': user.is_staff
+            })
+        except jwt.ExpiredSignatureError:
+            return Response({'detail': 'Token has expired.'}, status=status.HTTP_401_UNAUTHORIZED)
+        except jwt.InvalidTokenError:
+            return Response({'detail': 'Invalid token.'}, status=status.HTTP_401_UNAUTHORIZED)

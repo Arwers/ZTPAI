@@ -169,5 +169,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = ['http://localhost:5173']
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = False  # Set to False for security
+
+# Make sure these are set for cookie handling
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# Allow Django admin to work with the frontend
+CORS_ALLOW_ALL_ORIGINS = True  # Only for development
 
 AUTH_USER_MODEL = 'users.User'
