@@ -18,7 +18,6 @@ import {
   CircularProgress
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ThemeToggle from '../components/ThemeToggle';

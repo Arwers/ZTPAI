@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { Box, CircularProgress, Container } from "@mui/material";
+import { CircularProgress, Container } from "@mui/material";
 
 interface ProtectedRouteProps {
   element: JSX.Element;
