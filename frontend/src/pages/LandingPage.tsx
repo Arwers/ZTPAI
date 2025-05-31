@@ -126,8 +126,7 @@ const LandingPage: React.FC = () => {
             Take control of your finances today.
           </Typography>
           <Typography variant="h5" align="center" color="text.secondary" paragraph>
-            Streamline your workflow, collaborate with your team, and deliver projects on time
-            with our intuitive project management platform.
+            Our application offers powerful tools for tracking expenses, budgeting, and financial planning.
           </Typography>
           <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
             <Button 
@@ -180,11 +179,10 @@ const LandingPage: React.FC = () => {
               }}
             >
               <Typography variant="h5" gutterBottom>
-                Task Management
+                Managing expenses
               </Typography>
               <Typography>
-                Organize tasks with priorities, deadlines, and assignments. Track progress
-                with customizable workflows and visual boards.
+                Easily track your daily expenses, categorize them, and set budgets to stay on top of your finances.
               </Typography>
             </Paper>
             
@@ -198,11 +196,10 @@ const LandingPage: React.FC = () => {
               }}
             >
               <Typography variant="h5" gutterBottom>
-                Team Collaboration
+                Multi-account support
               </Typography>
               <Typography>
-                Communicate effectively with integrated messaging, comments, and file sharing.
-                Keep everyone on the same page.
+                Manage multiple bank accounts, credit cards, and cash transactions all in one place.
               </Typography>
             </Paper>
             
@@ -219,8 +216,8 @@ const LandingPage: React.FC = () => {
                 Reports & Analytics
               </Typography>
               <Typography>
-                Get insights into project performance with detailed reports and dashboards.
-                Make data-driven decisions to improve efficiency.
+                Get insights into your spending habits with detailed reports and visualizations. 
+                Understand where your money goes and how to save more effectively.
               </Typography>
             </Paper>
           </Box>
@@ -282,16 +279,16 @@ const LandingPage: React.FC = () => {
                   }}
                 >
                   <Typography variant="h6" color="secondary.contrastText">
-                    Project Dashboard
+                    Dashboard
                   </Typography>
                 </Paper>
               </Grid>
               <Grid item xs={12} md={6}>
                 <Typography variant="h5" gutterBottom>
-                  2. Create Your First Project
+                  2. Set up Your accounts
                 </Typography>
                 <Typography paragraph>
-                  Set up a project, add tasks, and invite your team members to collaborate.
+                  Set up your bank accounts, credit cards, and cash transactions to start tracking your finances.
                 </Typography>
               </Grid>
             </Grid>
@@ -301,10 +298,10 @@ const LandingPage: React.FC = () => {
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} md={6}>
                 <Typography variant="h5" gutterBottom>
-                  3. Track Your Progress
+                  3. Track Your spendings
                 </Typography>
                 <Typography paragraph>
-                  Monitor project progress, update task statuses, and stay on top of deadlines.
+                  Monitor your daily expenses, categorize them, and set budgets to stay on track with your financial goals.
                 </Typography>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -381,7 +378,7 @@ const LandingPage: React.FC = () => {
                 About Us
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                We're a passionate team dedicated to building tools that help people work smarter and more efficiently.
+                ZTPAI project for Cracow UoT
               </Typography>
             </Grid>
             <Grid item xs={12} md={4}>
@@ -389,13 +386,13 @@ const LandingPage: React.FC = () => {
                 Contact Us
               </Typography>
               <Typography variant="body2" color="text.secondary" paragraph>
-                Email: support@projectmanager.com
+                Email: mock@email.com
               </Typography>
               <Typography variant="body2" color="text.secondary" paragraph>
-                Phone: +1 (555) 123-4567
+                Phone: +48 123 123 123
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Address: 123 Project St, Techville, CA 94043
+                Address: Cracow, Poland
               </Typography>
             </Grid>
             <Grid item xs={12} md={4}>
@@ -415,7 +412,7 @@ const LandingPage: React.FC = () => {
           </Grid>
           <Box mt={4} pt={2} borderTop={1} borderColor="divider">
             <Typography variant="body2" color="text.secondary" align="center">
-              © {new Date().getFullYear()} Project Manager. All rights reserved.
+              © {new Date().getFullYear()} Finance Tracker. All rights reserved.
             </Typography>
           </Box>
         </Container>
