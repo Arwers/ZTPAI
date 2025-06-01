@@ -185,7 +185,7 @@ const AccountSelectionPage = () => {
 
   const handleAccountSelect = (accountId: number) => {
     localStorage.setItem('selectedAccountId', accountId.toString());
-    navigate('/dashboard');
+    navigate(`/dashboard?acc=${accountId}`);
   };
 
   // Add state for edit/delete management

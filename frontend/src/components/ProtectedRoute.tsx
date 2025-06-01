@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { CircularProgress, Container } from "@mui/material";
 
@@ -9,6 +9,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ element, requiredRole }: ProtectedRouteProps) => {
   const { user, isLoading } = useAuth();
+  const location = useLocation();
   
   // Simple loading indicator instead of skeleton
   if (isLoading) {
@@ -21,7 +22,7 @@ const ProtectedRoute = ({ element, requiredRole }: ProtectedRouteProps) => {
 
   // User is not authenticated
   if (!user) {
-    return <Navigate to="/login" replace />;  // Change to /login instead of / (landing page)
+    return <Navigate to="/login" replace />;
   }
 
   // Check role requirements
@@ -29,7 +30,8 @@ const ProtectedRoute = ({ element, requiredRole }: ProtectedRouteProps) => {
     if (user.is_staff) {
       return <Navigate to="/admin-panel" replace />;
     } else {
-      return <Navigate to="/dashboard" replace />;
+      // For regular users who don't meet role requirements, redirect to accounts
+      return <Navigate to="/accounts" replace />;
     }
   }
 
