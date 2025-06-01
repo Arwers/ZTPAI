@@ -32,17 +32,20 @@ const LoginPage = () => {
     setLoginError(null);
     
     try {
+      console.log('Login form submitted');
       const result = await login(username, password);
       
       // Only navigate if login was successful
       if (result && result.user_id) {
+        console.log('Login successful, redirecting...');
         if (result.is_staff) {
           navigate('/admin-panel', { replace: true });
         } else {
-          navigate('/dashboard', { replace: true });
+          navigate('/accounts', { replace: true });
         }
       }
     } catch (err: any) {
+      console.error('Login failed:', err);
       // Set error message but stay on login page
       setLoginError(error || "Invalid credentials");
     } finally {

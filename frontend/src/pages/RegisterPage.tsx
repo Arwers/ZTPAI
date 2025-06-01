@@ -50,13 +50,27 @@ const RegisterPage = () => {
     }
 
     try {
-      await api.post("/api/users/register/", {
+      const response = await api.post("/api/users/register/", {
         username: formData.username,
         email: formData.email,
         password: formData.password
       });
       
-      // Registration successful, redirect to login
+      // After successful registration, log the user in automatically
+      try {
+        const { login } = useAuth();
+        const result = await login(formData.username, formData.password);
+        
+        if (result) {
+          // Redirect to accounts page
+          navigate('/accounts', { replace: true });
+          return;
+        }
+      } catch (loginErr) {
+        console.error("Auto-login failed after registration", loginErr);
+      }
+      
+      // If auto-login fails, just redirect to login page
       navigate("/login");
     } catch (err: any) {
       // Handle different error types

@@ -1,45 +1,20 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from 'react';
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
+import AccountSelectionPage from "./pages/AccountSelectionPage"; // Import the new page
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminPanelPage from "./pages/AdminPanelPage";
 import LandingPage from "./pages/LandingPage";
 import { ThemeProvider as CustomThemeProvider } from "./contexts/ThemeContext";
 import { ThemeProvider as MuiThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import { useTheme } from "./contexts/ThemeContext";
 import colors from "./theme/colors";
 
-// Custom navigation guard to prevent redirect on login errors
-const LoginGuard = ({ children }: { children: React.ReactNode }) => {
-  const location = useLocation();
-  const { user, error, isLoading } = useAuth();
-  
-  // If there's a login error, always render the children (login page)
-  if (error || location.pathname === '/login') {
-    return <>{children}</>;
-  }
-  
-  // Regular behavior - redirect if already authenticated
-  if (user && !isLoading && location.pathname === '/login') {
-    if (user.is_staff) {
-      return <Navigate to="/admin-panel" replace />;
-    } else {
-      return <Navigate to="/dashboard" replace />;
-    }
-  }
-  
-  return <>{children}</>;
-};
-
-// Add a component that prevents automatic redirects
 const NoRedirectWrapper = ({ children }: { children: React.ReactNode }) => {
-  const { loginFailed } = useAuth();
-  
-  // Use session storage to track that we're on login page
   useEffect(() => {
     sessionStorage.setItem('preventRedirect', 'true');
     
@@ -51,12 +26,9 @@ const NoRedirectWrapper = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Theme wrapper that consumes our ThemeContext
 const ThemedApp = () => {
   const { mode } = useTheme();
-  
-  // Create theme with our custom colors based on current mode
-  const theme = createTheme({
+    const theme = createTheme({
     palette: {
       mode: mode,
       primary: {
@@ -101,6 +73,11 @@ const ThemedApp = () => {
               </NoRedirectWrapper>
             } />
             <Route path="/register" element={<RegisterPage />} />
+            {/* Add the account selection route */}
+            <Route 
+              path="/accounts" 
+              element={<ProtectedRoute element={<AccountSelectionPage />} requiredRole="user" />} 
+            />
             <Route 
               path="/dashboard" 
               element={<ProtectedRoute element={<DashboardPage />} requiredRole="user" />} 

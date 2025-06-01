@@ -1,38 +1,35 @@
 import axios from 'axios';
 
+// Helper function to get cookie by name
+const getCookie = (name: string): string | null => {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  if (match) return match[2];
+  return null;
+};
+
+// Create API instance with base configuration
 const api = axios.create({
   baseURL: 'http://localhost:8000',
-  withCredentials: true, // Important for sending cookies
+  withCredentials: true, // Always include cookies
 });
 
-// Response interceptor to handle token refresh
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+// Add consistent authentication to all requests
+api.interceptors.request.use(
+  (config) => {
+    // Make sure cookies are always sent
+    config.withCredentials = true;
     
-    // Only handle 401 errors and prevent infinite retry loops
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      
-      // Check if we're already on login/register/landing pages - don't redirect
-      const currentPath = window.location.pathname;
-      if (currentPath === '/login' || currentPath === '/register' || currentPath === '/') {
-        return Promise.reject(error);
-      }
-      
-      try {
-        await api.post('/api/auth/refresh/');
-        return api(originalRequest);
-      } catch (refreshError) {
-        // Refresh failed, redirect to login (not landing page)
-        if (currentPath !== '/login') {
-          window.location.href = '/login';
-        }
-        return Promise.reject(refreshError);
-      }
+    // Get access token from cookie
+    const accessToken = getCookie('access_token');
+    
+    // Add Authorization header if token exists
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     
+    return config;
+  },
+  (error) => {
     return Promise.reject(error);
   }
 );

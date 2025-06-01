@@ -65,23 +65,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoginInProgress(true);
     
     try {
+      console.log("Attempting login for user:", username);
+      
       // First try to login
       const loginResponse = await api.post("/api/auth/login/", {
         username,
         password,
       });
       
+      console.log("Login response received:", loginResponse.status);
+      
       if (loginResponse.status === 200) {
+        // Store token in localStorage if it's in the response
+        if (loginResponse.data?.access_token) {
+          localStorage.setItem('access_token', loginResponse.data.access_token);
+          console.log('Token stored in localStorage');
+        }
+        
+        // Add a small delay to ensure cookies are set properly
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
         // If login was successful, get user data
         const userData = await checkAuthOnly();
+        console.log("User data after login:", userData);
+        
         if (userData) {
           setUser(userData);
           return userData;
         } else {
+          console.error("Login succeeded but user data is null");
           throw new Error("Failed to get user info after login");
         }
       }
     } catch (err: any) {
+      console.error("Login error:", err);
       // Set error but don't cause redirect
       setError(err.response?.data?.detail || "Invalid username or password");
       throw err;
@@ -102,29 +119,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Only check auth on initial load and avoid duplicate checks
+  // Update auth check effect to be more reliable
   useEffect(() => {
+    let isMounted = true;
+    
     const initAuth = async () => {
       const currentPath = window.location.pathname;
       
-      // Don't check auth during login process or on auth pages
-      if (loginInProgress || currentPath === '/login' || currentPath === '/register') {
+      // Skip auth check on login/register pages
+      if (currentPath === '/login' || currentPath === '/register' || currentPath === '/') {
         setIsLoading(false);
         return;
       }
-
-      // Check auth on protected pages or landing page
+      
       try {
+        console.log('Checking authentication for path:', currentPath);
         const userData = await checkAuthOnly();
-        setUser(userData);
+        
+        // Only update state if component is still mounted
+        if (isMounted) {
+          console.log('Authentication check result:', userData ? 'Authenticated' : 'Not authenticated');
+          setUser(userData);
+          setIsLoading(false);
+        }
       } catch (err) {
-        setUser(null);
-      } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          console.error('Auth check error:', err);
+          setUser(null);
+          setIsLoading(false);
+        }
       }
     };
     
     initAuth();
+    
+    // Cleanup function to prevent updates after unmount
+    return () => {
+      isMounted = false;
+    };
   }, [loginInProgress]); // Only depend on loginInProgress
 
   return (
