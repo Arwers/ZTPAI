@@ -18,9 +18,13 @@ import {
   CircularProgress,
   AppBar,
   Toolbar,
-  Avatar
+  Avatar,
+  IconButton,
+  Tooltip
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { useAuth } from "../contexts/AuthContext";
 import ThemeToggle from "../components/ThemeToggle";
@@ -184,13 +188,124 @@ const AccountSelectionPage = () => {
     navigate('/dashboard');
   };
 
-  if (isLoading) {
-    return (
-      <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Container>
-    );
-  }
+  // Add state for edit/delete management
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [accountToEdit, setAccountToEdit] = useState<Account | null>(null);
+  const [accountToDelete, setAccountToDelete] = useState<Account | null>(null);
+  const [editedAccount, setEditedAccount] = useState({
+    name: "",
+    balance: ""
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Add handler for edit button click
+  const handleEditClick = (account: Account) => {
+    setAccountToEdit(account);
+    setEditedAccount({
+      name: account.name,
+      balance: account.balance
+    });
+    setEditDialogOpen(true);
+  };
+
+  // Add handler for delete button click
+  const handleDeleteClick = () => {
+    if (!accountToEdit) return;
+    
+    setAccountToDelete(accountToEdit);
+    setDeleteDialogOpen(true);
+  };
+
+  // Add handler for account update
+  const handleUpdateAccount = async () => {
+    if (!accountToEdit) return;
+    
+    setIsEditing(true);
+    try {
+      // Get access token from cookie
+      const accessToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('access_token='))
+        ?.split('=')[1];
+      
+      const headers = {
+        'Authorization': accessToken ? `Bearer ${accessToken}` : '',
+        'Content-Type': 'application/json'
+      };
+      
+      // Call the API to update the account
+      const response = await api.patch(`/api/accounts/${accountToEdit.id}/`, {
+        name: editedAccount.name,
+        balance: parseFloat(editedAccount.balance) || 0
+      }, {
+        headers,
+        withCredentials: true
+      });
+      
+      // Update the account in the state
+      setAccounts(prevAccounts => 
+        prevAccounts.map(account => 
+          account.id === accountToEdit.id ? response.data : account
+        )
+      );
+      
+      // Close the edit dialog
+      setEditDialogOpen(false);
+      setAccountToEdit(null);
+    } catch (error) {
+      console.error("Error updating account:", error);
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
+  // Add handler for account deletion
+  const handleDeleteAccount = async () => {
+    if (!accountToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      // Get access token from cookie
+      const accessToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('access_token='))
+        ?.split('=')[1];
+      
+      const headers = {
+        'Authorization': accessToken ? `Bearer ${accessToken}` : '',
+        'Content-Type': 'application/json'
+      };
+      
+      // Call the API to delete the account
+      await api.delete(`/api/accounts/${accountToDelete.id}/`, {
+        headers,
+        withCredentials: true
+      });
+      
+      // Remove the account from the state
+      setAccounts(prevAccounts => 
+        prevAccounts.filter(account => account.id !== accountToDelete.id)
+      );
+      
+      // Clear selected account if it was deleted
+      const selectedAccountId = localStorage.getItem('selectedAccountId');
+      if (selectedAccountId === accountToDelete.id.toString()) {
+        localStorage.removeItem('selectedAccountId');
+      }
+      
+      // Close all dialogs
+      setDeleteDialogOpen(false);
+      setEditDialogOpen(false);
+      setAccountToDelete(null);
+      setAccountToEdit(null);
+    } catch (error) {
+      console.error("Error deleting account:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Dialog for creating a new account - show fallback messages if reference data is missing
   const renderDialog = () => (
@@ -292,8 +407,114 @@ const AccountSelectionPage = () => {
     </Dialog>
   );
 
+  // Dialog for editing an existing account
+  const renderEditDialog = () => (
+    <Dialog 
+      open={editDialogOpen} 
+      onClose={() => setEditDialogOpen(false)}
+      maxWidth="sm" 
+      fullWidth
+    >
+      <DialogTitle>Edit Account</DialogTitle>
+      <DialogContent>
+        <Box component="form" noValidate onSubmit={(e) => e.preventDefault()}>
+          <TextField
+            fullWidth
+            label="Account Name"
+            margin="normal"
+            value={editedAccount.name}
+            onChange={(e) => setEditedAccount({ ...editedAccount, name: e.target.value })}
+            required
+          />
+          <TextField
+            fullWidth
+            label="Balance"
+            type="number"
+            margin="normal"
+            value={editedAccount.balance}
+            onChange={(e) => setEditedAccount({ ...editedAccount, balance: e.target.value })}
+            required
+          />
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button 
+          color="error"
+          onClick={handleDeleteClick}
+          disabled={isEditing}
+          startIcon={<DeleteIcon />}
+        >
+          Delete Account
+        </Button>
+        <Box sx={{ flexGrow: 1 }} />
+        <Button onClick={() => setEditDialogOpen(false)} disabled={isEditing}>
+          Cancel
+        </Button>
+        <Button 
+          onClick={handleUpdateAccount} 
+          variant="contained" 
+          disabled={isEditing || !editedAccount.name}
+        >
+          {isEditing ? <CircularProgress size={24} /> : 'Save Changes'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+
+  // Dialog for delete confirmation
+  const renderDeleteConfirmDialog = () => (
+    <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+      <DialogTitle>Delete Account</DialogTitle>
+      <DialogContent>
+        <Typography>
+          Are you sure you want to delete the account "{accountToDelete?.name}"?
+        </Typography>
+        <Typography variant="body2" color="error" sx={{ mt: 2 }}>
+          This action cannot be undone. All transactions related to this account will also be deleted.
+        </Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setDeleteDialogOpen(false)} disabled={isDeleting}>
+          Cancel
+        </Button>
+        <Button 
+          onClick={handleDeleteAccount} 
+          color="error" 
+          variant="contained"
+          disabled={isDeleting}
+        >
+          {isDeleting ? <CircularProgress size={24} /> : 'Delete'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+
   // Add maximum account limit
   const MAX_ACCOUNTS = 4;
+
+  // Function to generate random colors for avatars
+  const getRandomColor = (accountId: number) => {
+    const colors = [
+      '#1976d2', // blue
+      '#388e3c', // green
+      '#f57c00', // orange
+      '#7b1fa2', // purple
+      '#d32f2f', // red
+      '#0288d1', // light blue
+      '#689f38', // light green
+      '#f9a825', // yellow
+      '#512da8', // deep purple
+      '#c2185b', // pink
+      '#00796b', // teal
+      '#5d4037', // brown
+      '#455a64', // blue grey
+      '#e64a19', // deep orange
+      '#1565c0'  // blue
+    ];
+    
+    // Use accountId to ensure consistent color for each account
+    return colors[accountId % colors.length];
+  };
 
   return (
     <Box sx={{ 
@@ -398,7 +619,8 @@ const AccountSelectionPage = () => {
                     transform: 'scale(1.05)',
                     boxShadow: 6
                   },
-                  bgcolor: 'background.paper'
+                  bgcolor: 'background.paper',
+                  position: 'relative'
                 }}
               >
                 <CardActionArea 
@@ -411,7 +633,7 @@ const AccountSelectionPage = () => {
                       height: 84, 
                       mx: 'auto', 
                       mb: 2,
-                      bgcolor: 'primary.main' 
+                      bgcolor: getRandomColor(account.id) // Use random color based on account ID
                     }}
                   >
                     <AccountBalanceIcon sx={{ fontSize: 40 }} />
@@ -434,6 +656,30 @@ const AccountSelectionPage = () => {
                     </Typography>
                   </CardContent>
                 </CardActionArea>
+                
+                {/* Edit button in top-right corner */}
+                <Tooltip title="Edit account">
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditClick(account);
+                    }}
+                    sx={{
+                      position: 'absolute',
+                      top: 8,
+                      right: 8,
+                      bgcolor: 'background.paper',
+                      color: 'primary.main',
+                      '&:hover': {
+                        bgcolor: 'primary.light',
+                        color: 'white'
+                      }
+                    }}
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               </Card>
             </Grid>
           ))}
@@ -473,7 +719,7 @@ const AccountSelectionPage = () => {
                       height: 84, 
                       mx: 'auto', 
                       mb: 2,
-                      bgcolor: 'action.selected'
+                      bgcolor: 'action.selected' // Keep the "New Account" avatar with default styling
                     }}
                   >
                     <AddIcon sx={{ fontSize: 40 }} />
@@ -506,6 +752,12 @@ const AccountSelectionPage = () => {
 
         {/* Create Account Dialog */}
         {renderDialog()}
+        
+        {/* Edit Account Dialog */}
+        {renderEditDialog()}
+        
+        {/* Delete Confirmation Dialog */}
+        {renderDeleteConfirmDialog()}
       </Container>
     </Box>
   );

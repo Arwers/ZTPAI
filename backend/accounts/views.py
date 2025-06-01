@@ -1,6 +1,7 @@
 from django.shortcuts import render
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
 from .models import Account, AccountType, Currency
 from .serializers import AccountSerializer, AccountTypeSerializer, CurrencySerializer
 from .authentication import CookieJWTAuthentication
@@ -38,6 +39,11 @@ class AccountDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         # Filter accounts by the authenticated user
         return Account.objects.filter(user=self.request.user)
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({"message": "Account successfully deleted"}, status=status.HTTP_200_OK)
 
 class AccountTypeListView(generics.ListAPIView):
     """
