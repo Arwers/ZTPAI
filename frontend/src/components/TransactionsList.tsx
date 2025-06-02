@@ -32,9 +32,10 @@ interface Transaction {
 interface TransactionsListProps {
   accountId: number;
   refreshTrigger: number;
+  onTransactionDeleted?: () => void;
 }
 
-const TransactionsList = ({ accountId, refreshTrigger }: TransactionsListProps) => {
+const TransactionsList = ({ accountId, refreshTrigger, onTransactionDeleted }: TransactionsListProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -68,21 +69,27 @@ const TransactionsList = ({ accountId, refreshTrigger }: TransactionsListProps) 
     fetchTransactions();
   }, [accountId, refreshTrigger]);
 
-  const handleDeleteTransaction = async (id: number) => {
+  const handleDelete = async (transactionId: number) => {
     if (window.confirm('Are you sure you want to delete this transaction?')) {
       try {
-        // Get access token from cookie
         const accessToken = document.cookie
           .split('; ')
           .find(row => row.startsWith('access_token='))
           ?.split('=')[1];
-        
-        await api.delete(`/api/transactions/${id}/`, {
+
+        await api.delete(`/api/transactions/${transactionId}/`, {
           headers: {
             'Authorization': accessToken ? `Bearer ${accessToken}` : '',
           }
         });
-        setTransactions(transactions.filter(transaction => transaction.id !== id));
+
+        // Refresh the transactions list
+        setTransactions(transactions.filter(transaction => transaction.id !== transactionId));
+        
+        // Trigger dashboard refresh if callback provided
+        if (onTransactionDeleted) {
+          onTransactionDeleted();
+        }
       } catch (err) {
         console.error('Failed to delete transaction:', err);
         alert('Failed to delete transaction. Please try again.');
@@ -158,7 +165,7 @@ const TransactionsList = ({ accountId, refreshTrigger }: TransactionsListProps) 
                     <IconButton 
                       edge="end" 
                       aria-label="delete"
-                      onClick={() => handleDeleteTransaction(transaction.id)}
+                      onClick={() => handleDelete(transaction.id)}
                     >
                       <DeleteIcon />
                     </IconButton>

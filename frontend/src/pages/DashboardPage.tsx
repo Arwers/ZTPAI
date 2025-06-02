@@ -71,6 +71,9 @@ interface SpendingStats {
   totalIncome: number;
   totalExpenses: number;
   netChange: number;
+  currentBalance: number;
+  spendingLimit: number;
+  remainingBudget: number;
   biggestExpense: Transaction | null;
   biggestIncome: Transaction | null;
   categoryBreakdown: CategorySpending[];
@@ -88,6 +91,9 @@ const DashboardPage = () => {
     totalIncome: 0,
     totalExpenses: 0,
     netChange: 0,
+    currentBalance: 0,
+    spendingLimit: 0,
+    remainingBudget: 0,
     biggestExpense: null,
     biggestIncome: null,
     categoryBreakdown: []
@@ -228,11 +234,19 @@ const DashboardPage = () => {
           }))
           .sort((a, b) => b.amount - a.amount);
         
+        // Calculate balances and limits
+        const currentBalance = totalIncome - totalExpenses;
+        const spendingLimit = parseFloat(selectedAccount.balance);
+        const remainingBudget = spendingLimit - totalExpenses;
+        
         // Update spending stats
         setSpendingStats({
           totalIncome,
           totalExpenses,
           netChange: totalIncome - totalExpenses,
+          currentBalance,
+          spendingLimit,
+          remainingBudget,
           biggestExpense,
           biggestIncome,
           categoryBreakdown
@@ -338,7 +352,7 @@ const DashboardPage = () => {
             <Button 
               variant="outlined" 
               onClick={handleSwitchAccount}
-              sx={{ display: { xs: 'none', sm: 'block' } }}
+              sx={{ display: { xs: 'none', md: 'block' } }}
             >
               Switch Account
             </Button>
@@ -361,7 +375,7 @@ const DashboardPage = () => {
           component={RouterLink}
           to="/accounts"
           startIcon={<AccountBalanceIcon />}
-          sx={{ mb: { xs: 2, sm: 3 }, width: { xs: '100%', sm: 'auto' } }}
+          sx={{ mb: { xs: 2, sm: 3 }, width: { xs: '100%', sm: 'auto' }, display: { xs: 'flex', md: 'none' } }}
         >
           Switch Account
         </Button>
@@ -386,7 +400,29 @@ const DashboardPage = () => {
                   <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
                     {selectedAccount.currency?.symbol}
                   </Box>
+                  {statsLoading ? '...' : spendingStats.currentBalance.toFixed(2)}
+                </Typography>
+              </Box>
+
+              {/* Spending Limit and Remaining Budget */}
+              <Box mb={2} textAlign="center">
+                <Typography variant="body2" color="text.secondary">Spending Limit</Typography>
+                <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                  <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                    {selectedAccount.currency?.symbol}
+                  </Box>
                   {selectedAccount.balance}
+                </Typography>
+                <Typography 
+                  variant="body2" 
+                  color={spendingStats.remainingBudget < 0 ? 'error' : 'success.main'}
+                  sx={{ mt: 1 }}
+                >
+                  {spendingStats.remainingBudget < 0 ? 'Over budget by: ' : 'Remaining budget: '}
+                  <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                    {selectedAccount.currency?.symbol}
+                  </Box>
+                  {Math.abs(spendingStats.remainingBudget).toFixed(2)}
                 </Typography>
               </Box>
 
@@ -619,6 +655,7 @@ const DashboardPage = () => {
                 <TransactionsList 
                   accountId={selectedAccount.id} 
                   refreshTrigger={refreshTrigger}
+                  onTransactionDeleted={() => setRefreshTrigger(prev => prev + 1)}
                 />
               </Box>
             </Paper>
