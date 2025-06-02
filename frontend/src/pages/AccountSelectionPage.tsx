@@ -316,7 +316,7 @@ const AccountSelectionPage = () => {
       fullWidth
       disableRestoreFocus
     >
-      <DialogTitle>Create New Account</DialogTitle>
+      <DialogTitle>Create New Profile</DialogTitle>
       <DialogContent>
         <Box component="form" noValidate onSubmit={(e) => e.preventDefault()}>
           <TextField
@@ -329,7 +329,7 @@ const AccountSelectionPage = () => {
           />
           <TextField
             fullWidth
-            label="Initial Balance"
+            label="Spending limit"
             type="number"
             margin="normal"
             value={newAccount.balance}
@@ -371,7 +371,7 @@ const AccountSelectionPage = () => {
             <TextField
               fullWidth
               select
-              label="Account Type"
+              label="Type"
               margin="normal"
               value={newAccount.account_type_id}
               onChange={(e) => setNewAccount({ ...newAccount, account_type_id: e.target.value })}
@@ -401,7 +401,7 @@ const AccountSelectionPage = () => {
             !newAccount.account_type_id
           }
         >
-          {isSubmitting ? <CircularProgress size={24} /> : 'Create Account'}
+          {isSubmitting ? <CircularProgress size={24} /> : 'Create Profile'}
         </Button>
       </DialogActions>
     </Dialog>
@@ -415,12 +415,12 @@ const AccountSelectionPage = () => {
       maxWidth="sm" 
       fullWidth
     >
-      <DialogTitle>Edit Account</DialogTitle>
+      <DialogTitle>Edit Profile</DialogTitle>
       <DialogContent>
         <Box component="form" noValidate onSubmit={(e) => e.preventDefault()}>
           <TextField
             fullWidth
-            label="Account Name"
+            label="Profile Name"
             margin="normal"
             value={editedAccount.name}
             onChange={(e) => setEditedAccount({ ...editedAccount, name: e.target.value })}
@@ -443,9 +443,18 @@ const AccountSelectionPage = () => {
           onClick={handleDeleteClick}
           disabled={isEditing}
           startIcon={<DeleteIcon />}
+          sx={{ display: { xs: 'none', sm: 'flex' } }}
         >
-          Delete Account
+          Delete profile
         </Button>
+        <IconButton
+          color="error"
+          onClick={handleDeleteClick}
+          disabled={isEditing}
+          sx={{ display: { xs: 'flex', sm: 'none' } }}
+        >
+          <DeleteIcon />
+        </IconButton>
         <Box sx={{ flexGrow: 1 }} />
         <Button onClick={() => setEditDialogOpen(false)} disabled={isEditing}>
           Cancel
@@ -576,10 +585,10 @@ const AccountSelectionPage = () => {
       >
         <Box textAlign="center" mb={6}>
           <Typography variant="h2" gutterBottom fontWeight="bold" color="text.primary">
-            Who's managing finances today?
+            Select your profile
           </Typography>
           <Typography variant="h6" color="text.secondary">
-            Select an account or create a new one
+            Select profile or create a new one
           </Typography>
         </Box>
 
@@ -599,18 +608,19 @@ const AccountSelectionPage = () => {
               You don't have any accounts yet
             </Typography>
             <Typography color="text.secondary">
-              Click the "Create New Account" button below to get started
+              Click the "Create New profile" button below to get started
             </Typography>
           </Box>
         ) : null}
 
-        <Grid container spacing={4} justifyContent="center" sx={{ mt: 3 }}>
+        <Grid container spacing={3} justifyContent="center" sx={{ display: 'flex', flex: 1 }} >
           {/* Render accounts if available */}
           {accounts.map((account) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={account.id}>
               <Card 
                 sx={{ 
                   height: 230,
+                  width: '25vh',
                   display: 'flex',
                   flexDirection: 'column',
                   borderRadius: 2,
@@ -690,6 +700,7 @@ const AccountSelectionPage = () => {
               <Card 
                 sx={{ 
                   height: 230,
+                  width: '25vh',
                   display: 'flex',
                   flexDirection: 'column',
                   borderRadius: 2,
@@ -738,7 +749,7 @@ const AccountSelectionPage = () => {
                       fontWeight="medium" 
                       color="primary"
                     >
-                      New Account
+                      New Profile
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Create a new financial profile
