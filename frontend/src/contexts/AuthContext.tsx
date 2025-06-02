@@ -16,6 +16,7 @@ interface AuthContextType {
   refreshToken: () => Promise<boolean>;
   error: string | null;
   checkAuthOnly: () => Promise<AuthUser | null>;
+  getAccessToken: () => string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -119,6 +120,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const getAccessToken = (): string => {
+    // Get token from cookie
+    const tokenFromCookie = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('access_token='))
+      ?.split('=')[1];
+
+    if (!tokenFromCookie) {
+      console.warn('No access token found in cookies');
+      // You could redirect to login page here
+    }
+    
+    return tokenFromCookie || '';
+  };
+
   // Update auth check effect to be more reliable
   useEffect(() => {
     let isMounted = true;
@@ -168,7 +184,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       refreshUser,
       refreshToken,
       error, 
-      checkAuthOnly
+      checkAuthOnly,
+      getAccessToken
     }}>
       {children}
     </AuthContext.Provider>
