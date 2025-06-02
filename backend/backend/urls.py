@@ -14,11 +14,12 @@ urlpatterns = [
     path("api/auth/login/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/auth/refresh/", CustomTokenRefreshView.as_view(), name="token_refresh"),
     path("api/auth/logout/", LogoutView.as_view(), name="logout"),
-    path("api/auth/me/", MeView.as_view(), name="me"),
-
-    # Accounts API endpoints
+    path("api/auth/me/", MeView.as_view(), name="me"),    # Accounts API endpoints
     path('api/accounts/', include('accounts.urls')),
 
+    # Transactions API endpoints
+    path('api/transactions/', include('transactions.urls')),
+    path('api/categories/', include('categories.urls')),
 
     # Swagger URLs
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

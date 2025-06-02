@@ -1,41 +1,44 @@
-from rest_framework.authentication import BaseAuthentication
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.authentication import CSRFCheck
+from rest_framework import exceptions
 from django.conf import settings
-from users.models import User
-import jwt
+from drf_spectacular.extensions import OpenApiAuthenticationExtension
 
-class CookieJWTAuthentication(BaseAuthentication):
+class CookieJWTAuthentication(JWTAuthentication):
     """
-    Authentication class that gets JWT token from cookies.
+    Custom authentication class that authenticates using cookies instead of Authorization header.
     """
     def authenticate(self, request):
-        # Get token from cookie
         access_token = request.COOKIES.get('access_token')
         
-        # If no token in cookie, check Authorization header
-        if not access_token:
-            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
-            if auth_header.startswith('Bearer '):
-                access_token = auth_header.split(' ')[1]
+        # Also check header for compatibility with API tools
+        header = request.META.get('HTTP_AUTHORIZATION')
+        
+        if header:
+            # Use standard JWT authentication if Authorization header exists
+            return super().authenticate(request)
         
         if not access_token:
             return None
             
-        try:
-            # Decode token
-            decoded_token = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
-            user_id = decoded_token.get('user_id')
-            
-            if not user_id:
-                return None
-                
-            # Get user by ID
-            user = User.objects.filter(id=user_id).first()
-            if not user:
-                return None
-                
-            return (user, None)
-        except jwt.ExpiredSignatureError:
-            return None
-        except jwt.InvalidTokenError:
-            return None
+        # Get validated token
+        validated_token = self.get_validated_token(access_token)
+        
+        # Return the user and the validated token
+        return self.get_user(validated_token), validated_token
+
+class CookieJWTScheme(OpenApiAuthenticationExtension):
+    """
+    Schema extension for the CookieJWTAuthentication class.
+    """
+    target_class = 'accounts.authentication.CookieJWTAuthentication'
+    # Change the name to avoid conflict with SessionAuthentication
+    name = 'jwtCookieAuth'
+    
+    def get_security_definition(self, auto_schema):
+        return {
+            'type': 'apiKey',
+            'in': 'cookie',
+            'name': 'access_token',
+            'description': 'JWT Token in cookie'
+        }

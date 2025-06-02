@@ -11,11 +11,13 @@ from datetime import datetime, timedelta
 from rest_framework_simplejwt.tokens import AccessToken
 import jwt
 from rest_framework.views import APIView
+from accounts.authentication import CookieJWTAuthentication
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+    authentication_classes = [CookieJWTAuthentication]
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
@@ -115,3 +117,17 @@ class MeView(APIView):
             return Response({'detail': 'Token has expired.'}, status=status.HTTP_401_UNAUTHORIZED)
         except jwt.InvalidTokenError:
             return Response({'detail': 'Invalid token.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+class ManageUserView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CookieJWTAuthentication]
+
+    def get_object(self):
+        # Override to return the user object for the authenticated user
+        return self.request.user
+
+    def perform_update(self, serializer):
+        # Override to update the user object
+        serializer.save()
