@@ -316,7 +316,8 @@ const DashboardPage = () => {
       minHeight: '100vh', 
       display: 'flex', 
       flexDirection: 'column',
-      bgcolor: 'background.default', 
+      bgcolor: 'background.default',
+      transition: 'background-color 0.3s ease, color 0.3s ease',
     }}>
       <AppBar 
         position="sticky" 
@@ -324,6 +325,7 @@ const DashboardPage = () => {
         elevation={1} 
         sx={{ 
           bgcolor: 'background.paper',
+          transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
         }}
       >
         <Toolbar>
@@ -335,13 +337,14 @@ const DashboardPage = () => {
               alignItems: 'center', 
               textDecoration: 'none', 
               color: 'inherit',
+              transition: 'color 0.3s ease',
             }}
           >
             <FontAwesomeIcon 
               icon={faChartPie} 
               style={{ fontSize: '1.5rem', marginRight: '10px' }} 
             />
-            <Typography variant="h6" component="div" color="text.primary">
+            <Typography variant="h6" component="div" color="text.primary" sx={{ transition: 'color 0.3s ease' }}>
               Finance Tracker
             </Typography>
           </Box>
@@ -352,7 +355,10 @@ const DashboardPage = () => {
             <Button 
               variant="outlined" 
               onClick={handleSwitchAccount}
-              sx={{ display: { xs: 'none', md: 'block' } }}
+              sx={{ 
+                display: { xs: 'none', md: 'block' },
+                transition: 'all 0.3s ease',
+              }}
             >
               Switch Account
             </Button>
@@ -361,6 +367,7 @@ const DashboardPage = () => {
               variant="contained" 
               color="error" 
               onClick={handleLogout}
+              sx={{ transition: 'all 0.3s ease' }}
             >
               Logout
             </Button>
@@ -375,7 +382,12 @@ const DashboardPage = () => {
           component={RouterLink}
           to="/accounts"
           startIcon={<AccountBalanceIcon />}
-          sx={{ mb: { xs: 2, sm: 3 }, width: { xs: '100%', sm: 'auto' }, display: { xs: 'flex', md: 'none' } }}
+          sx={{ 
+            mb: { xs: 2, sm: 3 }, 
+            width: { xs: '100%', sm: 'auto' }, 
+            display: { xs: 'flex', md: 'none' },
+            transition: 'all 0.3s ease',
+          }}
         >
           Switch Account
         </Button>
@@ -384,7 +396,20 @@ const DashboardPage = () => {
         <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mb: { xs: 2, sm: 3 } }}>
           {/* Account Summary Card */}
           <Grid item xs={12} lg={4} sx={{ display: 'flex', flex: 1 }}>
-            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, height: '100%', borderRadius: 2, border: 1, borderColor: 'divider', width: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Paper 
+              elevation={0} 
+              sx={{ 
+                p: { xs: 1.5, sm: 2 }, 
+                height: '100%', 
+                borderRadius: 2, 
+                border: 1, 
+                borderColor: 'divider', 
+                width: '100%', 
+                display: 'flex', 
+                flexDirection: 'column',
+                transition: 'background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+              }}
+            >
               <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
                 <AccountBalanceIcon sx={{ fontSize: { xs: 20, sm: 24 }, mr: 2, color: 'primary.main' }} />
                 <Box textAlign="center">
@@ -503,7 +528,8 @@ const DashboardPage = () => {
                 borderColor: 'divider',
                 display: 'flex',
                 flexDirection: 'column',
-                width: '100%'
+                width: '100%',
+                transition: 'background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
               }}
             >
               <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
@@ -579,7 +605,8 @@ const DashboardPage = () => {
                 borderColor: 'divider',
                 display: 'flex',
                 flexDirection: 'column',
-                width: '100%'
+                width: '100%',
+                transition: 'background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
               }}
             >
               <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
@@ -639,6 +666,7 @@ const DashboardPage = () => {
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
+                transition: 'background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
               }}
             >
               <Typography variant="h5" gutterBottom sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>

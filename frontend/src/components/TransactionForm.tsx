@@ -208,7 +208,7 @@ const TransactionForm = ({ accountId, onTransactionAdded }: TransactionFormProps
               onChange={handleInputChange}
               helperText="Use negative values for expenses, positive for income"
               InputProps={{
-                startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                startAdornment: <InputAdornment position="start"></InputAdornment>,
               }}
               sx={{ width: { xs: '100%', sm: 'auto' } }}
             />

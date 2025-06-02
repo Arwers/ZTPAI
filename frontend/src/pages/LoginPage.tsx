@@ -57,21 +57,23 @@ const LoginPage = () => {
   const showSpinner = isSubmitting;
 
   return (
-    <Box sx={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      flexDirection: 'column',
-      transition: 'background-color 0.3s ease',
-      bgcolor: 'background.default',
-    }}>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: 'background.default',
+        transition: 'background-color 0.3s ease, color 0.3s ease',
+      }}
+    >
       {/* Header bar with icon and title */}
       <AppBar 
         position="sticky" 
         color="default" 
         elevation={1} 
         sx={{ 
-          transition: 'background-color 0.3s ease',
           bgcolor: 'background.paper',
+          transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
         }}
       >
         <Toolbar>
@@ -83,14 +85,14 @@ const LoginPage = () => {
               alignItems: 'center', 
               textDecoration: 'none', 
               color: 'inherit',
-              cursor: 'pointer'
+              transition: 'color 0.3s ease',
             }}
           >
             <FontAwesomeIcon 
               icon={faChartPie} 
               style={{ fontSize: '1.5rem', marginRight: '10px' }} 
             />
-            <Typography variant="h6" component="div">
+            <Typography variant="h6" component="div" color="text.primary" sx={{ transition: 'color 0.3s ease' }}>
               Finance Tracker
             </Typography>
           </Box>
@@ -121,6 +123,7 @@ const LoginPage = () => {
             width: "100%", 
             maxWidth: 400, 
             textAlign: "center",
+            transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
           }}
         >
           <Typography variant="h4" sx={{ fontSize: { xs: '1.75rem', sm: '2.25rem' } }} gutterBottom>
@@ -136,6 +139,14 @@ const LoginPage = () => {
               onChange={(e) => setUsername(e.target.value)}
               required
               disabled={showSpinner}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  transition: 'border-color 0.3s ease, background-color 0.3s ease',
+                },
+                '& .MuiInputLabel-root': {
+                  transition: 'color 0.3s ease',
+                },
+              }}
             />
             <TextField
               fullWidth
@@ -147,6 +158,14 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               disabled={showSpinner}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  transition: 'border-color 0.3s ease, background-color 0.3s ease',
+                },
+                '& .MuiInputLabel-root': {
+                  transition: 'color 0.3s ease',
+                },
+              }}
             />
             {(loginError || error) && (
               <Alert severity="error" sx={{ my: 2 }}>
@@ -163,7 +182,8 @@ const LoginPage = () => {
                 mt: 2,
                 py: { xs: 1.5, sm: 2 },
                 fontSize: { xs: '0.9rem', sm: '1rem' },
-                minHeight: 48 // Ensure consistent height with/without spinner
+                minHeight: 48, // Ensure consistent height with/without spinner
+                transition: 'all 0.3s ease',
               }}
             >
               {isSubmitting ? <CircularProgress size={24} /> : "Login"}
