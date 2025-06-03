@@ -16,7 +16,6 @@ import {
   Collapse,
   IconButton,
   SelectChangeEvent,
-  useTheme,
   useMediaQuery,
 } from '@mui/material';
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
@@ -35,7 +34,6 @@ interface TransactionFormProps {
 }
 
 const TransactionForm = ({ accountId, onTransactionAdded }: TransactionFormProps) => {
-  const theme = useTheme();
   const isSmallScreen = useMediaQuery('(max-width:700px)');
 
   const [categories, setCategories] = useState<Category[]>([]);

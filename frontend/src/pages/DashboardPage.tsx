@@ -4,8 +4,6 @@ import {
   Container,
   Typography,
   Grid,
-  Card,
-  CardContent,
   Box,
   Button,
   CircularProgress,
@@ -13,13 +11,7 @@ import {
   Toolbar,
   Paper,
   Divider,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Avatar,
   useTheme,
-  Tooltip,
 } from "@mui/material";
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { useAuth } from "../contexts/AuthContext";
@@ -28,14 +20,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartPie } from '@fortawesome/free-solid-svg-icons';
 import { Link as RouterLink } from 'react-router-dom';
 import { PieChart } from '@mui/x-charts/PieChart';
-import { BarChart } from '@mui/x-charts/BarChart';
 import api from "../utils/api";
 import TransactionsList from "../components/TransactionsList";
 import TransactionForm from "../components/TransactionForm";
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import CategoryIcon from '@mui/icons-material/Category';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
@@ -83,7 +73,6 @@ interface SpendingStats {
 const DashboardPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const theme = useTheme();
   const { logout, user } = useAuth();  
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [isLoading, setIsLoading] = useState(true);

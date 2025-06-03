@@ -50,12 +50,6 @@ const RegisterPage = () => {
     }
 
     try {
-      const response = await api.post("/api/users/register/", {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password
-      });
-      
       // After successful registration, log the user in automatically
       try {
         const { login } = useAuth();
@@ -143,18 +137,18 @@ const RegisterPage = () => {
           alignItems: "center", 
           justifyContent: "center", 
           flexGrow: 1,
-          py: { xs: 4, md: 0 }, // Add padding for mobile
-          px: { xs: 2, sm: 3, md: 4 }, // Responsive padding
+          py: { xs: 4, md: 0 },
+          px: { xs: 2, sm: 3, md: 4 },
         }}
       >
         <Paper 
           elevation={3} 
           sx={{ 
-            padding: { xs: 2, sm: 3, md: 4 }, // Responsive padding
+            padding: { xs: 2, sm: 3, md: 4 },
             width: "100%", 
             maxWidth: 400, 
             textAlign: "center",
-            transition: 'background-color 0.3s ease' // For smooth theme transitions
+            transition: 'background-color 0.3s ease'
           }}
         >
           <Typography variant="h4" sx={{ fontSize: { xs: '1.75rem', sm: '2.25rem' } }} gutterBottom>

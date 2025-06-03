@@ -3,9 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
   Container,
   Typography,
-  Grid,
-  Card,
-  CardContent,
   Box,
   Button,
   Dialog,
@@ -31,7 +28,6 @@ import {
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
 import PersonIcon from '@mui/icons-material/Person';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { useAuth } from "../contexts/AuthContext";

@@ -10,8 +10,7 @@ import {
   Divider,
   Paper,
   CircularProgress,
-  IconButton,
-  Tooltip
+  IconButton
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
