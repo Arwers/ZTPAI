@@ -160,17 +160,11 @@ const TransactionsList = ({ accountId, refreshTrigger, onTransactionDeleted }: T
               {index > 0 && <Divider variant="inset" component="li" />}
               <ListItem
                 alignItems="flex-start"
-                secondaryAction={
-                  <Tooltip title="Delete transaction">
-                    <IconButton 
-                      edge="end" 
-                      aria-label="delete"
-                      onClick={() => handleDelete(transaction.id)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                }
+                sx={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  py: 2
+                }}
               >
                 <ListItemAvatar>
                   <Avatar
@@ -183,21 +177,9 @@ const TransactionsList = ({ accountId, refreshTrigger, onTransactionDeleted }: T
                 </ListItemAvatar>
                 <ListItemText
                   primary={
-                    <Box display="flex" justifyContent="space-between">
-                      <Typography component="span" variant="body1">
-                        {transaction.description || transaction.category_name}
-                      </Typography>
-                      <Typography
-                        component="span"
-                        variant="body1"
-                        sx={{
-                          color: isPositive ? 'success.main' : 'error.main',
-                          fontWeight: 'bold',
-                        }}
-                      >
-                        {isPositive ? '+' : ''}{transaction.amount}
-                      </Typography>
-                    </Box>
+                    <Typography component="span" variant="body1">
+                      {transaction.description || transaction.category_name}
+                    </Typography>
                   }
                   secondary={
                     <>
@@ -232,6 +214,26 @@ const TransactionsList = ({ accountId, refreshTrigger, onTransactionDeleted }: T
                     </>
                   }
                 />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2 }}>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: isPositive ? 'success.main' : 'error.main',
+                      fontWeight: 'bold',
+                      minWidth: '80px',
+                      textAlign: 'right'
+                    }}
+                  >
+                    {isPositive ? '+' : ''}{transaction.amount}
+                  </Typography>
+                  <IconButton 
+                    aria-label="delete"
+                    onClick={() => handleDelete(transaction.id)}
+                    size="small"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
               </ListItem>
             </Box>
           );
