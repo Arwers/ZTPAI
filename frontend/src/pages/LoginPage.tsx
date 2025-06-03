@@ -38,11 +38,8 @@ const LoginPage = () => {
       // Only navigate if login was successful
       if (result && result.user_id) {
         console.log('Login successful, redirecting...');
-        if (result.is_staff) {
-          navigate('/admin-panel', { replace: true });
-        } else {
-          navigate('/accounts', { replace: true });
-        }
+        // Check if user has admin privileges and redirect accordingly
+        navigate('/accounts', { replace: true });
       }
     } catch (err: any) {
       console.error('Login failed:', err);

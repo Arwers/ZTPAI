@@ -37,6 +37,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import CategoryIcon from '@mui/icons-material/Category';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 interface Account {
   id: number;
@@ -280,7 +281,7 @@ const DashboardPage = () => {
 
   // Format currency values
   const formatCurrency = (value: number): string => {
-    return selectedAccount?.currency?.symbol + value.toFixed(2);
+    return value.toFixed(2) + selectedAccount?.currency?.symbol;
   };
 
   // Format currency values without symbol for mobile
@@ -352,6 +353,19 @@ const DashboardPage = () => {
           <Box sx={{ flexGrow: 1 }} />
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {user?.is_staff && (
+              <Button 
+                variant="outlined" 
+                component={RouterLink}
+                to="/admin-panel"
+                sx={{ 
+                  display: { xs: 'none', lg: 'block' },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                Admin Panel
+              </Button>
+            )}
             <Button 
               variant="outlined" 
               onClick={handleSwitchAccount}
@@ -392,6 +406,25 @@ const DashboardPage = () => {
           Switch Account
         </Button>
 
+        {/* Admin Panel Button - Mobile Only */}
+        {user?.is_staff && (
+          <Button
+            variant="outlined"
+            size="large"
+            component={RouterLink}
+            to="/admin-panel"
+            startIcon={<AdminPanelSettingsIcon />}
+            sx={{ 
+              mb: { xs: 2, sm: 3 }, 
+              width: { xs: '100%', sm: 'auto' }, 
+              display: { xs: 'flex', lg: 'none' },
+              transition: 'all 0.3s ease',
+            }}
+          >
+            Admin Panel
+          </Button>
+        )}
+
         {/* First row - Account Overview Cards */}
         <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mb: { xs: 2, sm: 3 } }}>
           {/* Account Summary Card */}
@@ -422,10 +455,10 @@ const DashboardPage = () => {
               <Box mb={2} textAlign="center">
                 <Typography variant="body2" color="text.secondary">Current Balance</Typography>
                 <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
+                  {statsLoading ? '...' : spendingStats.currentBalance.toFixed(2)}
                   <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
                     {selectedAccount.currency?.symbol}
                   </Box>
-                  {statsLoading ? '...' : spendingStats.currentBalance.toFixed(2)}
                 </Typography>
               </Box>
 
@@ -433,10 +466,10 @@ const DashboardPage = () => {
               <Box mb={2} textAlign="center">
                 <Typography variant="body2" color="text.secondary">Spending Limit</Typography>
                 <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                  {selectedAccount.balance}
                   <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
                     {selectedAccount.currency?.symbol}
                   </Box>
-                  {selectedAccount.balance}
                 </Typography>
                 <Typography 
                   variant="body2" 
@@ -444,10 +477,10 @@ const DashboardPage = () => {
                   sx={{ mt: 1 }}
                 >
                   {spendingStats.remainingBudget < 0 ? 'Over budget by: ' : 'Remaining budget: '}
+                  {Math.abs(spendingStats.remainingBudget).toFixed(2)}
                   <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
                     {selectedAccount.currency?.symbol}
                   </Box>
-                  {Math.abs(spendingStats.remainingBudget).toFixed(2)}
                 </Typography>
               </Box>
 
