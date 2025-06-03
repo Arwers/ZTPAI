@@ -8,15 +8,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
+        migrations.RemoveField(
             model_name='account',
             name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
-            preserve_default=False,
         ),
-        migrations.AddField(
+        migrations.RemoveField(
             model_name='account',
             name='updated_at',
-            field=models.DateTimeField(auto_now=True),
         ),
     ]
