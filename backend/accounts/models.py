@@ -20,7 +20,7 @@ class AccountType(models.Model):
 
 
 class Account(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="accounts")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="accounts", db_index=True)
     account_type = models.ForeignKey(
         AccountType, on_delete=models.SET_NULL, null=True, related_name="accounts"
     )
