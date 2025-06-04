@@ -53,7 +53,6 @@ const TransactionForm = ({ accountId, onTransactionAdded }: TransactionFormProps
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        // Get access token from cookie
         const accessToken = document.cookie
           .split('; ')
           .find(row => row.startsWith('access_token='))
@@ -66,7 +65,6 @@ const TransactionForm = ({ accountId, onTransactionAdded }: TransactionFormProps
         });
         setCategories(response.data);
       } catch (err) {
-        console.error('Failed to fetch categories:', err);
         setError('Failed to load categories. Some form features may be limited.');
       }
     };
@@ -97,12 +95,10 @@ const TransactionForm = ({ accountId, onTransactionAdded }: TransactionFormProps
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Reset states
     setLoading(true);
     setSuccess(false);
     setError('');
 
-    // Prepare data for API
     const payload = {
       account: accountId,
       category: parseInt(formData.category_id),
@@ -114,7 +110,6 @@ const TransactionForm = ({ accountId, onTransactionAdded }: TransactionFormProps
     };
 
     try {
-      // Get access token from cookie
       const accessToken = document.cookie
         .split('; ')
         .find(row => row.startsWith('access_token='))
@@ -126,7 +121,6 @@ const TransactionForm = ({ accountId, onTransactionAdded }: TransactionFormProps
         }
       });
       
-      // Reset form
       setFormData({
         amount: '',
         category_id: '',
@@ -139,7 +133,6 @@ const TransactionForm = ({ accountId, onTransactionAdded }: TransactionFormProps
       setSuccess(true);
       onTransactionAdded();
 
-      // Hide success message after 3 seconds
       setTimeout(() => setSuccess(false), 3000);
     } catch (err: any) {
       console.error('Failed to add transaction:', err);

@@ -32,25 +32,18 @@ const LoginPage = () => {
     setLoginError(null);
     
     try {
-      console.log('Login form submitted');
       const result = await login(username, password);
       
-      // Only navigate if login was successful
       if (result && result.user_id) {
-        console.log('Login successful, redirecting...');
-        // Check if user has admin privileges and redirect accordingly
         navigate('/accounts', { replace: true });
       }
     } catch (err: any) {
-      console.error('Login failed:', err);
-      // Set error message but stay on login page
       setLoginError(error || "Invalid credentials");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Only show loading spinner when actively submitting the form
   const showSpinner = isSubmitting;
 
   return (
@@ -63,7 +56,6 @@ const LoginPage = () => {
         transition: 'background-color 0.3s ease, color 0.3s ease',
       }}
     >
-      {/* Header bar with icon and title */}
       <AppBar 
         position="sticky" 
         color="default" 
@@ -179,7 +171,7 @@ const LoginPage = () => {
                 mt: 2,
                 py: { xs: 1.5, sm: 2 },
                 fontSize: { xs: '0.9rem', sm: '1rem' },
-                minHeight: 48, // Ensure consistent height with/without spinner
+                minHeight: 48,
                 transition: 'all 0.3s ease',
               }}
             >

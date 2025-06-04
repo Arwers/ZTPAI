@@ -97,27 +97,21 @@ const DashboardPage = () => {
 
   useEffect(() => {
     const loadSelectedAccount = async () => {
-      // Get account ID from URL parameter first, then fallback to localStorage
       const urlAccountId = searchParams.get('acc');
       const storageAccountId = localStorage.getItem('selectedAccountId');
       const accountId = urlAccountId || storageAccountId;
 
       if (!accountId) {
-        // No account selected, redirect to account selection
         navigate('/accounts');
         return;
       }
 
       try {
-        // Get access token from cookie - same method as AccountSelectionPage
         const accessToken = document.cookie
           .split('; ')
           .find(row => row.startsWith('access_token='))
           ?.split('=')[1];
 
-        console.log("Found access token in DashboardPage:", accessToken ? "Yes" : "No");
-
-        // Fetch the specific account data with explicit token
         const response = await api.get(`/api/accounts/${accountId}/`, {
           headers: {
             'Authorization': accessToken ? `Bearer ${accessToken}` : '',
@@ -126,19 +120,16 @@ const DashboardPage = () => {
 
         setSelectedAccount(response.data);
         
-        // Update localStorage if URL param was used
         if (urlAccountId) {
           localStorage.setItem('selectedAccountId', urlAccountId);
         }
         
-        // Update URL to include account parameter if it's missing
         if (!urlAccountId && storageAccountId) {
           navigate(`/dashboard?acc=${storageAccountId}`, { replace: true });
         }
 
       } catch (error) {
         console.error("Error fetching account:", error);
-        // If account doesn't exist or error, redirect to account selection
         localStorage.removeItem('selectedAccountId');
         navigate('/accounts');
       } finally {
@@ -151,7 +142,6 @@ const DashboardPage = () => {
     }
   }, [user, searchParams, navigate]);
 
-  // Fetch statistics when account is loaded or refreshTrigger changes
   useEffect(() => {
     const fetchAccountStatistics = async () => {
       if (!selectedAccount) return;
@@ -159,13 +149,11 @@ const DashboardPage = () => {
       setStatsLoading(true);
       
       try {
-        // Get access token from cookie
         const accessToken = document.cookie
           .split('; ')
           .find(row => row.startsWith('access_token='))
           ?.split('=')[1];
         
-        // Fetch transactions for the selected account
         const response = await api.get(`/api/transactions/by_account/`, {
           params: { account_id: selectedAccount.id },
           headers: {
@@ -175,7 +163,6 @@ const DashboardPage = () => {
         
         const transactions = response.data;
         
-        // Calculate statistics
         let totalIncome = 0;
         let totalExpenses = 0;
         let biggestExpense = null;
@@ -183,11 +170,9 @@ const DashboardPage = () => {
         const categoryAmounts: {[key: string]: number} = {};
         const categoryColors: {[key: string]: string} = {};
         
-        // Process transactions
         transactions.forEach((transaction: Transaction) => {
           const amount = parseFloat(transaction.amount);
           
-          // Track income vs expenses
           if (amount > 0) {
             totalIncome += amount;
             if (!biggestIncome || amount > parseFloat(biggestIncome.amount)) {
@@ -200,21 +185,17 @@ const DashboardPage = () => {
             }
           }
           
-          // Track category spending - handle null category_name
           const category = transaction.category_name || 'Uncategorized';
           if (!categoryAmounts[category]) {
             categoryAmounts[category] = 0;
-            // Assign a color based on the category name (consistent for same categories)
             const colorIndex = Object.keys(categoryAmounts).length % colors.length;
             categoryColors[category] = colors[colorIndex];
           }
-          // For category breakdown, we're interested in expenses (negative values)
           if (amount < 0) {
             categoryAmounts[category] += Math.abs(amount);
           }
         });
         
-        // Create category breakdown for pie chart
         const categoryBreakdown: CategorySpending[] = Object.keys(categoryAmounts)
           .filter(category => categoryAmounts[category] > 0)
           .map(category => ({
@@ -224,12 +205,10 @@ const DashboardPage = () => {
           }))
           .sort((a, b) => b.amount - a.amount);
         
-        // Calculate balances and limits
         const currentBalance = totalIncome - totalExpenses;
         const spendingLimit = parseFloat(selectedAccount.balance);
         const remainingBudget = spendingLimit - totalExpenses;
         
-        // Update spending stats
         setSpendingStats({
           totalIncome,
           totalExpenses,
@@ -268,17 +247,14 @@ const DashboardPage = () => {
     '#00796b', '#5d4037', '#455a64', '#e64a19', '#1565c0'
   ];
 
-  // Format currency values
   const formatCurrency = (value: number): string => {
     return value.toFixed(2) + selectedAccount?.currency?.symbol;
   };
 
-  // Format currency values without symbol for mobile
   const formatCurrencyMobile = (value: number): string => {
     return value.toFixed(2);
   };
 
-  // Format date to readable format
   const formatDate = (dateString?: string): string => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -298,7 +274,7 @@ const DashboardPage = () => {
   }
 
   if (!selectedAccount) {
-    return null; // Will redirect in useEffect
+    return null;
   }
 
   return (
@@ -395,7 +371,6 @@ const DashboardPage = () => {
           Switch Account
         </Button>
 
-        {/* Admin Panel Button - Mobile Only */}
         {user?.is_staff && (
           <Button
             variant="outlined"
@@ -414,9 +389,7 @@ const DashboardPage = () => {
           </Button>
         )}
 
-        {/* First row - Account Overview Cards */}
         <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mb: { xs: 2, sm: 3 } }}>
-          {/* Account Summary Card */}
           <Grid item xs={12} lg={4} sx={{ display: 'flex', flex: 1 }}>
             <Paper 
               elevation={0} 
@@ -451,7 +424,6 @@ const DashboardPage = () => {
                 </Typography>
               </Box>
 
-              {/* Spending Limit and Remaining Budget */}
               <Box mb={2} textAlign="center">
                 <Typography variant="body2" color="text.secondary">Spending Limit</Typography>
                 <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
@@ -473,7 +445,6 @@ const DashboardPage = () => {
                 </Typography>
               </Box>
 
-              {/* Financial Summary */}
               <Grid container spacing={2} sx={{ mb: 2, justifyContent: 'center' }}>
                 <Grid item xs={6}>
                   <Paper 
@@ -523,7 +494,6 @@ const DashboardPage = () => {
                 </Grid>
               </Grid>
 
-              {/* Account actions */}
               <Box mt="auto">
                 <Button 
                   variant="outlined" 
@@ -538,7 +508,6 @@ const DashboardPage = () => {
             </Paper>
           </Grid>
 
-          {/* Category Spending Breakdown */}
           <Grid item xs={12} lg={4} sx={{ display: 'flex', flex: 1 }}>
             <Paper 
               elevation={0} 
@@ -593,7 +562,6 @@ const DashboardPage = () => {
                       />
                     </Box>
 
-                    {/* Top Categories List - simplified for horizontal layout */}
                     {spendingStats.categoryBreakdown.length > 0 && (
                       <Box mt={1} textAlign="center">
                         <Typography variant="subtitle2" gutterBottom sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
@@ -615,7 +583,6 @@ const DashboardPage = () => {
             </Paper>
           </Grid>
 
-          {/* Biggest Expense Card */}
           <Grid item xs={12} lg={4} sx={{ display: 'flex', flex: 1 }}>
             <Paper 
               elevation={0} 
@@ -675,7 +642,6 @@ const DashboardPage = () => {
           </Grid>
         </Grid>
         
-        {/* Second row - Transaction Form and List */}
         <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ justifyContent: 'center' }}>
           <Grid item xs={12}>
             <Paper 
