@@ -26,7 +26,6 @@ import { faChartPie } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import SearchIcon from '@mui/icons-material/Search';
 
-// FAQ data
 const faqs = [
   {
     question: "What is this application for?",
@@ -50,7 +49,6 @@ const LandingPage: React.FC = () => {
   const theme = useTheme();
   const { isLoading } = useAuth();
   
-  // Show simple loading indicator if auth is loading
   if (isLoading) {
     return (
       <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -65,15 +63,14 @@ const LandingPage: React.FC = () => {
       minHeight: '100vh', 
       display: 'flex', 
       flexDirection: 'column',
-      transition: 'background-color 0.3s ease', // Add transition for smooth theme change
+      transition: 'background-color 0.3s ease',
       backgroundColor: 'background.default'
     }}>
-      {/* Navigation Bar */}
       <AppBar 
         position="sticky" 
         color="default" 
         elevation={0}
-        sx={{ transition: 'background-color 0.3s ease' }} // Add transition for AppBar
+        sx={{ transition: 'background-color 0.3s ease' }}
       >
         <Toolbar>
           <Box 
@@ -117,14 +114,13 @@ const LandingPage: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      {/* Hero Section */}
       <Box
         sx={{
           bgcolor: 'background.paper',
           pt: 8,
           pb: 6,
           textAlign: 'center',
-          transition: 'background-color 0.3s ease, color 0.3s ease' // Add transition for Hero section
+          transition: 'background-color 0.3s ease, color 0.3s ease'
         }}
       >
         <Container maxWidth="md">
@@ -162,18 +158,16 @@ const LandingPage: React.FC = () => {
         </Container>
       </Box>
 
-      {/* Features Section */}
       <Box id="features" sx={{ 
         py: 8, 
         bgcolor: 'background.default',
-        transition: 'background-color 0.3s ease' // Add transition for features section
+        transition: 'background-color 0.3s ease'
       }}>
         <Container maxWidth="lg">
           <Typography variant="h3" align="center" gutterBottom>
             Features
           </Typography>
           
-          {/* Center the features and give them fixed width */}
           <Box sx={{ 
             display: 'flex', 
             flexDirection: 'column', 
@@ -190,7 +184,7 @@ const LandingPage: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                transition: 'background-color 0.3s ease, color 0.3s ease' // Add transition for Paper elements
+                transition: 'background-color 0.3s ease, color 0.3s ease'
               }}
             >
               <Box sx={{ flex: 1 }}>
@@ -215,7 +209,7 @@ const LandingPage: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                transition: 'background-color 0.3s ease, color 0.3s ease' // Add transition for Paper elements
+                transition: 'background-color 0.3s ease, color 0.3s ease'
               }}
             >
               <Box sx={{ flex: 1 }}>
@@ -240,7 +234,7 @@ const LandingPage: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                transition: 'background-color 0.3s ease, color 0.3s ease' // Add transition for Paper elements
+                transition: 'background-color 0.3s ease, color 0.3s ease'
               }}
             >
               <Box sx={{ flex: 1 }}>
@@ -260,11 +254,10 @@ const LandingPage: React.FC = () => {
         </Container>
       </Box>
 
-      {/* Getting Started Section */}
       <Box sx={{ 
         py: 8, 
         bgcolor: 'background.paper',
-        transition: 'background-color 0.3s ease' // Add transition for section
+        transition: 'background-color 0.3s ease'
       }}>
         <Container maxWidth="md">
           <Typography variant="h3" align="center" gutterBottom>
@@ -311,11 +304,10 @@ const LandingPage: React.FC = () => {
         </Container>
       </Box>
 
-      {/* FAQ Section */}
       <Box sx={{ 
         py: 8, 
         bgcolor: 'background.default',
-        transition: 'background-color 0.3s ease' // Add transition for FAQ section
+        transition: 'background-color 0.3s ease'
       }}>
         <Container maxWidth="md">
           <Typography variant="h3" align="center" gutterBottom>
@@ -327,7 +319,7 @@ const LandingPage: React.FC = () => {
                 key={index} 
                 sx={{ 
                   mb: 1,
-                  transition: 'background-color 0.3s ease' // Add transition for accordion elements
+                  transition: 'background-color 0.3s ease'
                 }}
               >
                 <AccordionSummary
@@ -346,13 +338,12 @@ const LandingPage: React.FC = () => {
         </Container>
       </Box>
 
-      {/* Footer / Contact Section */}
       <Box 
         sx={{ 
           py: 6, 
           bgcolor: theme.palette.mode === 'light' ? 'grey.200' : 'grey.900',
           mt: 'auto',
-          transition: 'background-color 0.3s ease' // Add transition for footer
+          transition: 'background-color 0.3s ease'
         }} 
         component="footer"
       >

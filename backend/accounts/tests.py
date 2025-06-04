@@ -35,7 +35,6 @@ class AccountModelTest(TestCase):
         )
         self.assertEqual(account.name, 'Test Account')
         self.assertEqual(account.balance, Decimal('1000.00'))
-        # Update to match actual string representation
         self.assertEqual(str(account), 'Test Account (testuser)')
 
     def test_account_unique_together(self):
@@ -46,10 +45,9 @@ class AccountModelTest(TestCase):
             currency=self.currency,
             account_type=self.account_type
         )
-        # This should pass since there's no unique constraint in the actual model
         account2 = Account.objects.create(
             user=self.user,
-            name='Test Account 2',  # Different name
+            name='Test Account 2',
             balance=Decimal('2000.00'),
             currency=self.currency,
             account_type=self.account_type
@@ -64,7 +62,6 @@ class CurrencyModelTest(TestCase):
             symbol='€'
         )
         self.assertEqual(currency.code, 'EUR')
-        # Update to match actual string representation
         self.assertEqual(str(currency), 'EUR')
 
 class AccountTypeModelTest(TestCase):
@@ -139,7 +136,6 @@ class AccountAPITest(APITestCase):
         token = self.get_user_token(self.user)
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
         
-        # Create 3 more accounts to reach the limit of 4
         for i in range(3):
             Account.objects.create(
                 user=self.user,

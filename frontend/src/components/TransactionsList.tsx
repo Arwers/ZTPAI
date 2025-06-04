@@ -43,7 +43,6 @@ const TransactionsList = ({ accountId, refreshTrigger, onTransactionDeleted }: T
     const fetchTransactions = async () => {
       try {
         setLoading(true);
-        // Get access token from cookie
         const accessToken = document.cookie
           .split('; ')
           .find(row => row.startsWith('access_token='))
@@ -81,16 +80,11 @@ const TransactionsList = ({ accountId, refreshTrigger, onTransactionDeleted }: T
             'Authorization': accessToken ? `Bearer ${accessToken}` : '',
           }
         });
-
-        // Refresh the transactions list
         setTransactions(transactions.filter(transaction => transaction.id !== transactionId));
-        
-        // Trigger dashboard refresh if callback provided
         if (onTransactionDeleted) {
           onTransactionDeleted();
         }
       } catch (err) {
-        console.error('Failed to delete transaction:', err);
         alert('Failed to delete transaction. Please try again.');
       }
     }

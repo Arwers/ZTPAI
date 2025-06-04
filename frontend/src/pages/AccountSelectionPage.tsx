@@ -72,7 +72,6 @@ const AccountSelectionPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Make sure to destructure refreshToken from useAuth
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
@@ -81,50 +80,33 @@ const AccountSelectionPage = () => {
     navigate('/login');
   };
 
-  // Update useEffect to correctly handle authentication headers
   useEffect(() => {
-    // Don't fetch anything if there's no user
     if (!user) return;
 
     const fetchData = async () => {
       setIsLoading(true);
       
       try {
-        // Log cookies for debugging
-        console.log("Current cookies:", document.cookie);
-        
-        // First get types and currencies
-        try {
-          const typesRes = await api.get('/api/accounts/types/');
-          const currenciesRes = await api.get('/api/accounts/currencies/');
+        const typesRes = await api.get('/api/accounts/types/');
+        const currenciesRes = await api.get('/api/accounts/currencies/');
           
-          setAccountTypes(typesRes.data || []);
-          setCurrencies(currenciesRes.data || []);
-        } catch (refError) {
-          console.error("Error fetching reference data:", refError);
-          // Continue even if reference data fails
-        }
+        setAccountTypes(typesRes.data || []);
+        setCurrencies(currenciesRes.data || []);
         
-        // Get accounts with explicit token
         const accessToken = document.cookie
           .split('; ')
           .find(row => row.startsWith('access_token='))
           ?.split('=')[1];
         
-        console.log("Found access token:", accessToken ? "Yes" : "No");
-        
-        // Make the accounts API call with explicit token
         const accountsResponse = await api.get('/api/accounts/', {
           headers: {
             'Authorization': accessToken ? `Bearer ${accessToken}` : '',
           }
         });
         
-        console.log("Accounts response:", accountsResponse.data);
         setAccounts(accountsResponse.data || []);
 
       } catch (error) {
-        console.error("Error fetching accounts:", error);
         setAccounts([]);
       } finally {
         setIsLoading(false);
@@ -132,11 +114,10 @@ const AccountSelectionPage = () => {
     };
 
     fetchData();
-  }, [user]); // Only depend on user
+  }, [user]);
 
-  // Modify the handleCreateAccount function to prevent refresh
+
   const handleCreateAccount = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    // Prevent any default form submission behavior
     e.preventDefault();
     
     if (!newAccount.name || !newAccount.currency_id || !newAccount.account_type_id) {
@@ -145,13 +126,11 @@ const AccountSelectionPage = () => {
 
     setIsSubmitting(true);
     try {
-      // Get access token from cookie
       const accessToken = document.cookie
         .split('; ')
         .find(row => row.startsWith('access_token='))
         ?.split('=')[1];
       
-      // Set up request data and headers
       const accountData = {
         name: newAccount.name,
         balance: parseFloat(newAccount.balance) || 0,
@@ -164,17 +143,14 @@ const AccountSelectionPage = () => {
         'Content-Type': 'application/json'
       };
       
-      // Make the API request with explicit headers
       const response = await api.post('/api/accounts/', accountData, {
         headers,
         withCredentials: true
       });
       
-      // Reset form and close dialog
       setOpenDialog(false);
       setNewAccount({ name: "", balance: "0", currency_id: "", account_type_id: "" });
       
-      // Update state with the new account in a way that doesn't cause a full re-render
       setAccounts(prevAccounts => [...prevAccounts, response.data]);
     } catch (error) {
       console.error("Error creating account:", error);
@@ -188,7 +164,6 @@ const AccountSelectionPage = () => {
     navigate(`/dashboard?acc=${accountId}`);
   };
 
-  // Add state for edit/delete management
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [accountToEdit, setAccountToEdit] = useState<Account | null>(null);
@@ -200,7 +175,6 @@ const AccountSelectionPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Add handler for edit button click
   const handleEditClick = (account: Account) => {
     setAccountToEdit(account);
     setEditedAccount({
@@ -210,7 +184,6 @@ const AccountSelectionPage = () => {
     setEditDialogOpen(true);
   };
 
-  // Add handler for delete button click
   const handleDeleteClick = () => {
     if (!accountToEdit) return;
     
@@ -218,13 +191,11 @@ const AccountSelectionPage = () => {
     setDeleteDialogOpen(true);
   };
 
-  // Add handler for account update
   const handleUpdateAccount = async () => {
     if (!accountToEdit) return;
     
     setIsEditing(true);
     try {
-      // Get access token from cookie
       const accessToken = document.cookie
         .split('; ')
         .find(row => row.startsWith('access_token='))
@@ -235,7 +206,6 @@ const AccountSelectionPage = () => {
         'Content-Type': 'application/json'
       };
       
-      // Call the API to update the account
       const response = await api.patch(`/api/accounts/${accountToEdit.id}/`, {
         name: editedAccount.name,
         balance: parseFloat(editedAccount.balance) || 0
@@ -244,7 +214,6 @@ const AccountSelectionPage = () => {
         withCredentials: true
       });
       
-      // Update the account in the state
       setAccounts(prevAccounts => 
         prevAccounts.map(account => 
           account.id === accountToEdit.id ? response.data : account
@@ -261,13 +230,11 @@ const AccountSelectionPage = () => {
     }
   };
 
-  // Add handler for account deletion
   const handleDeleteAccount = async () => {
     if (!accountToDelete) return;
     
     setIsDeleting(true);
     try {
-      // Get access token from cookie
       const accessToken = document.cookie
         .split('; ')
         .find(row => row.startsWith('access_token='))
@@ -278,24 +245,20 @@ const AccountSelectionPage = () => {
         'Content-Type': 'application/json'
       };
       
-      // Call the API to delete the account
       await api.delete(`/api/accounts/${accountToDelete.id}/`, {
         headers,
         withCredentials: true
       });
       
-      // Remove the account from the state
       setAccounts(prevAccounts => 
         prevAccounts.filter(account => account.id !== accountToDelete.id)
       );
       
-      // Clear selected account if it was deleted
       const selectedAccountId = localStorage.getItem('selectedAccountId');
       if (selectedAccountId === accountToDelete.id.toString()) {
         localStorage.removeItem('selectedAccountId');
       }
       
-      // Close all dialogs
       setDeleteDialogOpen(false);
       setEditDialogOpen(false);
       setAccountToDelete(null);
@@ -307,7 +270,6 @@ const AccountSelectionPage = () => {
     }
   };
 
-  // Dialog for creating a new account - show fallback messages if reference data is missing
   const renderDialog = () => (
     <Dialog 
       open={openDialog} 
@@ -389,7 +351,7 @@ const AccountSelectionPage = () => {
       <DialogActions>
         <Button type="button" onClick={() => setOpenDialog(false)}>Cancel</Button>
         <Button 
-          type="button" // Explicitly set to button type
+          type="button"
           onClick={handleCreateAccount} 
           variant="contained" 
           disabled={
@@ -407,7 +369,6 @@ const AccountSelectionPage = () => {
     </Dialog>
   );
 
-  // Dialog for editing an existing account
   const renderEditDialog = () => (
     <Dialog 
       open={editDialogOpen} 
@@ -470,7 +431,6 @@ const AccountSelectionPage = () => {
     </Dialog>
   );
 
-  // Dialog for delete confirmation
   const renderDeleteConfirmDialog = () => (
     <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
       <DialogTitle>Delete Account</DialogTitle>
@@ -498,10 +458,8 @@ const AccountSelectionPage = () => {
     </Dialog>
   );
 
-  // Add maximum account limit
   const MAX_ACCOUNTS = 4;
 
-  // Function to generate random colors for avatars
   const getRandomColor = (accountId: number) => {
     const colors = [
       '#1976d2', // blue
@@ -521,7 +479,6 @@ const AccountSelectionPage = () => {
       '#1565c0'  // blue
     ];
     
-    // Use accountId to ensure consistent color for each account
     return colors[accountId % colors.length];
   };
 
@@ -592,7 +549,6 @@ const AccountSelectionPage = () => {
           </Typography>
         </Box>
 
-        {/* Display a message if there are no accounts */}
         {accounts.length === 0 && !isLoading ? (
           <Box 
             sx={{ 
@@ -614,7 +570,6 @@ const AccountSelectionPage = () => {
         ) : null}
 
         <Grid container spacing={3} justifyContent="center" sx={{ display: 'flex', flex: 1 }} >
-          {/* Render accounts if available */}
           {accounts.map((account) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={account.id}>
               <Card 
@@ -643,7 +598,7 @@ const AccountSelectionPage = () => {
                       height: 84, 
                       mx: 'auto', 
                       mb: 2,
-                      bgcolor: getRandomColor(account.id) // Use random color based on account ID
+                      bgcolor: getRandomColor(account.id)
                     }}
                   >
                     <AccountBalanceIcon sx={{ fontSize: 40 }} />
@@ -667,7 +622,6 @@ const AccountSelectionPage = () => {
                   </CardContent>
                 </CardActionArea>
                 
-                {/* Edit button in top-right corner */}
                 <Tooltip title="Edit account">
                   <IconButton
                     size="small"
@@ -693,8 +647,6 @@ const AccountSelectionPage = () => {
               </Card>
             </Grid>
           ))}
-
-          {/* Add new account card - only show if below account limit */}
           {accounts.length < MAX_ACCOUNTS && (
             <Grid item xs={12} sm={6} md={4} lg={3}>
               <Card 
@@ -730,7 +682,7 @@ const AccountSelectionPage = () => {
                       height: 84, 
                       mx: 'auto', 
                       mb: 2,
-                      bgcolor: 'action.selected' // Keep the "New Account" avatar with default styling
+                      bgcolor: 'action.selected'
                     }}
                   >
                     <AddIcon sx={{ fontSize: 40 }} />
@@ -761,13 +713,8 @@ const AccountSelectionPage = () => {
           )}
         </Grid>
 
-        {/* Create Account Dialog */}
-        {renderDialog()}
-        
-        {/* Edit Account Dialog */}
+        {renderDialog()}       
         {renderEditDialog()}
-        
-        {/* Delete Confirmation Dialog */}
         {renderDeleteConfirmDialog()}
       </Container>
     </Box>

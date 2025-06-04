@@ -21,7 +21,6 @@ class CategoryModelTest(TestCase):
 
     def test_category_unique_name(self):
         Category.objects.create(name='Transportation', is_income=False)
-        # If there's no unique constraint, this should pass
         category2 = Category.objects.create(name='Transportation', is_income=True)
         self.assertEqual(Category.objects.filter(name='Transportation').count(), 2)
 

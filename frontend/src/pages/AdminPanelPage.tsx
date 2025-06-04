@@ -73,14 +73,12 @@ const AdminPanelPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<'users' | 'accounts'>('users');
   
-  // Dialog states
   const [createUserDialog, setCreateUserDialog] = useState(false);
   const [deleteUserDialog, setDeleteUserDialog] = useState(false);
   const [deleteAccountDialog, setDeleteAccountDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedAccount, setSelectedAccount] = useState<UserAccount | null>(null);
   
-  // Form states
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
@@ -93,14 +91,12 @@ const AdminPanelPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Check if user is admin
   useEffect(() => {
     if (user && !user.is_staff) {
       navigate('/accounts');
     }
   }, [user, navigate]);
 
-  // Fetch data
   useEffect(() => {
     const fetchData = async () => {
       if (!user?.is_staff) return;
@@ -124,7 +120,6 @@ const AdminPanelPage = () => {
         setUsers(usersResponse.data || []);
         setAccounts(accountsResponse.data || []);
       } catch (error) {
-        console.error('Error fetching admin data:', error);
         setError('Failed to load admin data');
       } finally {
         setIsLoading(false);
@@ -321,7 +316,6 @@ const AdminPanelPage = () => {
       </AppBar>      
       
       <Container maxWidth="xl" sx={{ flexGrow: 1, py: { xs: 2, sm: 4 } }}>
-        {/* Alerts */}
         <Collapse in={!!success}>
           <Alert severity="success" sx={{ mb: 2, transition: 'all 0.3s ease' }}>
             {success}
@@ -334,7 +328,6 @@ const AdminPanelPage = () => {
           </Alert>
         </Collapse>
 
-        {/* Header */}
         <Box display="flex" alignItems="center" mb={4}>
           <AdminPanelSettingsIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
           <Typography variant="h4" component="h1">
@@ -342,7 +335,6 @@ const AdminPanelPage = () => {
           </Typography>
         </Box>
 
-        {/* Tab Buttons - Mobile Only */}
         <Box mb={3} sx={{ display: { xs: 'block', md: 'none' } }}>
           <Button
             variant={selectedTab === 'users' ? 'contained' : 'outlined'}
@@ -369,7 +361,6 @@ const AdminPanelPage = () => {
           </Button>
         </Box>
 
-        {/* Users Tab */}
         {selectedTab === 'users' && (
           <Paper 
             elevation={0} 
@@ -430,7 +421,7 @@ const AdminPanelPage = () => {
                             setSelectedUser(userRow);
                             setDeleteUserDialog(true);
                           }}
-                          disabled={userRow.id === user?.id} // Prevent self-deletion
+                          disabled={userRow.id === user?.id}
                         >
                           <DeleteIcon />
                         </IconButton>
@@ -443,7 +434,6 @@ const AdminPanelPage = () => {
           </Paper>
         )}
 
-        {/* Accounts Tab */}
         {selectedTab === 'accounts' && (
           <Paper 
             elevation={0} 
@@ -496,7 +486,6 @@ const AdminPanelPage = () => {
           </Paper>
         )}
 
-        {/* Create User Dialog */}
         <Dialog open={createUserDialog} onClose={() => setCreateUserDialog(false)} maxWidth="sm" fullWidth>
           <DialogTitle>Create New User</DialogTitle>
           <DialogContent>
@@ -560,7 +549,6 @@ const AdminPanelPage = () => {
           </DialogActions>
         </Dialog>
 
-        {/* Delete User Dialog */}
         <Dialog open={deleteUserDialog} onClose={() => setDeleteUserDialog(false)}>
           <DialogTitle>Delete User</DialogTitle>
           <DialogContent>
@@ -579,7 +567,6 @@ const AdminPanelPage = () => {
           </DialogActions>
         </Dialog>
 
-        {/* Delete Account Dialog */}
         <Dialog open={deleteAccountDialog} onClose={() => setDeleteAccountDialog(false)}>
           <DialogTitle>Delete Account</DialogTitle>
           <DialogContent>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { IconButton, Tooltip } from '@mui/material';
-import Brightness4Icon from '@mui/icons-material/Brightness4'; // Moon icon
-import Brightness7Icon from '@mui/icons-material/Brightness7'; // Sun icon
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface ThemeToggleProps {
@@ -12,14 +12,9 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ onToggle }) => {
   const { mode, toggleTheme } = useTheme();
   
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // Prevent default behaviors
     e.preventDefault();
     e.stopPropagation();
-    
-    // Toggle theme
     toggleTheme();
-    
-    // Execute callback if provided
     if (onToggle) {
       onToggle();
     }

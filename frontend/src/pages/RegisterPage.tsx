@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../utils/api";
+import { useAuth } from "../contexts/AuthContext";
 import {
   Container,
   TextField,
@@ -42,7 +43,6 @@ const RegisterPage = () => {
     setError("");
     setIsSubmitting(true);
 
-    // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       setIsSubmitting(false);
@@ -50,7 +50,12 @@ const RegisterPage = () => {
     }
 
     try {
-      // After successful registration, log the user in automatically
+      await api.post("/api/users/register/", {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password
+      });
+
       try {
         const { login } = useAuth();
         const result = await login(formData.username, formData.password);
@@ -64,16 +69,12 @@ const RegisterPage = () => {
         console.error("Auto-login failed after registration", loginErr);
       }
       
-      // If auto-login fails, just redirect to login page
       navigate("/login");
     } catch (err: any) {
-      // Handle different error types
       if (err.response && err.response.data) {
-        // Django REST framework typically returns errors in this format
         const serverErrors = err.response.data;
         const errorMessages = [];
         
-        // Extract error messages
         for (const key in serverErrors) {
           if (Array.isArray(serverErrors[key])) {
             errorMessages.push(`${key}: ${serverErrors[key].join(", ")}`);
@@ -91,12 +92,10 @@ const RegisterPage = () => {
     }
   };
 
-  // Custom theme toggle handler
   const handleThemeToggle = () => {
     setThemeChanged(true);
   };
 
-  // Show loading only during form submission
   if (isSubmitting) {
     return (
       <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -112,7 +111,6 @@ const RegisterPage = () => {
       flexDirection: 'column',
       transition: 'background-color 0.3s ease', 
     }}>
-      {/* Header bar with icon and title */}
       <AppBar position="sticky" color="default" elevation={1} sx={{ transition: 'background-color 0.3s ease' }}>
         <Toolbar>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -206,7 +204,7 @@ const RegisterPage = () => {
               fullWidth 
               sx={{ 
                 mt: 2,
-                py: { xs: 1.5, sm: 2 }, // Taller button on mobile for better touch target
+                py: { xs: 1.5, sm: 2 },
                 fontSize: { xs: '0.9rem', sm: '1rem' }
               }}
             >
