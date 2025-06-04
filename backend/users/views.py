@@ -26,26 +26,23 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             access_token = response.data['access']
             refresh_token = response.data['refresh']
             
-            # Decode the access token to get user info
             try:
                 decoded_token = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
                 user_id = decoded_token.get('user_id')
             except jwt.InvalidTokenError:
                 user_id = None
             
-            # Create new response without tokens in body
             new_response = Response({
                 'message': 'Login successful',
                 'user_id': user_id
             })
             
-            # Set HttpOnly cookies
             new_response.set_cookie(
                 'access_token',
                 access_token,
                 max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds(),
                 httponly=True,
-                secure=False,  # Set to True in production with HTTPS
+                secure=False,
                 samesite='Lax'
             )
             new_response.set_cookie(
@@ -53,7 +50,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 refresh_token,
                 max_age=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds(),
                 httponly=True,
-                secure=False,  # Set to True in production with HTTPS
+                secure=False,
                 samesite='Lax'
             )
             
@@ -69,11 +66,8 @@ class CustomTokenRefreshView(TokenRefreshView):
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
             access_token = response.data['access']
-            
-            # Create new response without token in body
+
             new_response = Response({'message': 'Token refreshed'})
-            
-            # Set new access token cookie
             new_response.set_cookie(
                 'access_token',
                 access_token,
@@ -96,7 +90,7 @@ class LogoutView(generics.GenericAPIView):
         return response
 
 class MeView(APIView):
-    permission_classes = [AllowAny]  # You may want to use IsAuthenticated if you require authentication
+    permission_classes = [AllowAny]
 
     def get(self, request):
         access_token = request.COOKIES.get('access_token')
@@ -125,9 +119,7 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
     authentication_classes = [CookieJWTAuthentication]
 
     def get_object(self):
-        # Override to return the user object for the authenticated user
         return self.request.user
 
     def perform_update(self, serializer):
-        # Override to update the user object
         serializer.save()

@@ -77,12 +77,10 @@ class UserAPITest(APITestCase):
         response = self.client.post(url, data)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Update to match actual response format
         self.assertIn('message', response.data)
         self.assertEqual(response.data['message'], 'Login successful')
 
     def test_get_user_profile(self):
-        # Login first to set the session
         login_url = reverse('token_obtain_pair')
         login_data = {
             'username': 'testuser',
@@ -90,12 +88,9 @@ class UserAPITest(APITestCase):
         }
         self.client.post(login_url, login_data)
         
-        # Now test the profile endpoint
         url = reverse('me')
         response = self.client.get(url)
         
-        # If the endpoint requires authentication and we can't authenticate properly in tests,
-        # we might need to modify this test or skip it
         if response.status_code == 401:
             self.skipTest("Authentication required for this endpoint in test environment")
         else:

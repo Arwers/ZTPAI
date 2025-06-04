@@ -102,7 +102,6 @@ INSTALLED_APPS = [
     'budgets',
     'categories',
     'notifications',
-    'reports',
     'transactions',
     'users',
 ]
