@@ -13,7 +13,7 @@ class Transaction(models.Model):
     ]
 
     account = models.ForeignKey(
-        Account, on_delete=models.CASCADE, related_name="transactions"
+        Account, on_delete=models.CASCADE, related_name="transactions", db_index=True
     )
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, null=True, related_name="transactions"
