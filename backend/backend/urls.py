@@ -14,7 +14,7 @@ urlpatterns = [
     path("api/auth/login/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/auth/refresh/", CustomTokenRefreshView.as_view(), name="token_refresh"),
     path("api/auth/logout/", LogoutView.as_view(), name="logout"),
-    path("api/auth/me/", MeView.as_view(), name="me"),    # Accounts API endpoints
+    path("api/auth/me/", MeView.as_view(), name="me"),
     path('api/accounts/', include('accounts.urls')),
 
     # Transactions API endpoints
