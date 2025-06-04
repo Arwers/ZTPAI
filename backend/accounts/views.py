@@ -1,7 +1,5 @@
-from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
 from .models import Account, AccountType, Currency
 from .serializers import AccountSerializer, AccountTypeSerializer, CurrencySerializer
 from .authentication import CookieJWTAuthentication

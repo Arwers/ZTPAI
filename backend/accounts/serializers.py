@@ -23,7 +23,6 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
 class UserBasicSerializer(serializers.ModelSerializer):
-    """Basic user serializer without password for account listings"""
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name']
