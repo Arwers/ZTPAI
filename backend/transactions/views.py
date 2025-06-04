@@ -61,18 +61,11 @@ from accounts.authentication import CookieJWTAuthentication
     )
 )
 class TransactionViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for viewing and editing transactions.
-    """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = TransactionSerializer
     authentication_classes = [CookieJWTAuthentication]
 
     def get_queryset(self):
-        """
-        This view should return a list of all transactions
-        for the currently authenticated user.
-        """
         user = self.request.user
         return Transaction.objects.filter(account__user=user)
 
@@ -89,9 +82,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
     )
     @action(detail=False, methods=['get'])
     def by_account(self, request):
-        """
-        Return transactions filtered by account ID.
-        """
         account_id = request.query_params.get('account_id')
         
         if not account_id:
@@ -100,7 +90,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Ensure we only return transactions for accounts owned by the requesting user
         queryset = Transaction.objects.filter(
             account__id=account_id,
             account__user=request.user

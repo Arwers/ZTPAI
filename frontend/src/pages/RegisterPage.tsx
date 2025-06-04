@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../utils/api";
+import { useAuth } from "../contexts/AuthContext";
 import {
   Container,
   TextField,
@@ -50,6 +51,13 @@ const RegisterPage = () => {
     }
 
     try {
+      // Call the CreateUserView API endpoint to register the user
+      await api.post("/api/users/register/", {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password
+      });
+
       // After successful registration, log the user in automatically
       try {
         const { login } = useAuth();
