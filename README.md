@@ -154,7 +154,7 @@ $ cd frontend
 $ npm i
 $ npm run dev
 ```
-### Docker setup (skip fackend setup and frontend setup)
+### Docker setup (skip frontend setup and frontend setup)
 ```bash
 $ docker compose up -d --build
 ```
