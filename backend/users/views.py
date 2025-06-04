@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from users.models import User
 from rest_framework import generics
 from users.serializers import UserSerializer
@@ -7,18 +6,33 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
-from datetime import datetime, timedelta
-from rest_framework_simplejwt.tokens import AccessToken
 import jwt
 from rest_framework.views import APIView
 from accounts.authentication import CookieJWTAuthentication
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 
+@extend_schema(
+    summary="Create new user account",
+    description="Register a new user with username, email and password",
+    responses={
+        201: UserSerializer,
+        400: OpenApiResponse(description="Validation errors (username/email already exists, weak password)")
+    }
+)
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
     authentication_classes = [CookieJWTAuthentication]
 
+@extend_schema(
+    summary="User login",
+    description="Authenticate user and set JWT tokens in cookies",
+    responses={
+        200: OpenApiResponse(description="Login successful"),
+        401: OpenApiResponse(description="Invalid credentials")
+    }
+)
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
@@ -57,6 +71,14 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             return new_response
         return response
 
+@extend_schema(
+    summary="Refresh access token",
+    description="Refresh JWT access token using refresh token from cookies",
+    responses={
+        200: OpenApiResponse(description="Token refreshed successfully"),
+        401: OpenApiResponse(description="Invalid or expired refresh token")
+    }
+)
 class CustomTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get('refresh_token')
@@ -80,6 +102,11 @@ class CustomTokenRefreshView(TokenRefreshView):
             return new_response
         return response
 
+@extend_schema(
+    summary="User logout",
+    description="Clear JWT tokens from cookies",
+    responses={200: OpenApiResponse(description="Logout successful")}
+)
 class LogoutView(generics.GenericAPIView):
     permission_classes = [AllowAny]
     
@@ -89,6 +116,15 @@ class LogoutView(generics.GenericAPIView):
         response.delete_cookie('refresh_token')
         return response
 
+@extend_schema(
+    summary="Get current user info",
+    description="Retrieve authenticated user's profile information",
+    responses={
+        200: OpenApiResponse(description="User profile data"),
+        401: OpenApiResponse(description="Authentication credentials not provided or invalid token"),
+        404: OpenApiResponse(description="User not found")
+    }
+)
 class MeView(APIView):
     permission_classes = [AllowAny]
 
@@ -112,6 +148,15 @@ class MeView(APIView):
         except jwt.InvalidTokenError:
             return Response({'detail': 'Invalid token.'}, status=status.HTTP_401_UNAUTHORIZED)
 
+@extend_schema(
+    summary="Manage user profile",
+    description="Get or update authenticated user's profile",
+    responses={
+        200: UserSerializer,
+        401: OpenApiResponse(description="Authentication required"),
+        400: OpenApiResponse(description="Validation errors")
+    }
+)
 class ManageUserView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
